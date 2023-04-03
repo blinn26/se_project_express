@@ -18,7 +18,9 @@ const clothingItem = new mongoose.Schema({
     required: true,
     validate: {
       validator: (v) => validator.isURL(v),
-      message: "{VALUE} is not a valid URL!",
+      message: "{VALUE} Link is not a valid URL!",
     },
   },
 });
+
+module.exports = mongoose.model("clothingItem", clothingItem);
