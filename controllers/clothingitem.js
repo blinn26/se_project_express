@@ -15,3 +15,4 @@ const createItem = (req, res) => {
       res.status(500).send({ message: "Error from createItem", err });
     });
 };
+module.exports = createItem;
