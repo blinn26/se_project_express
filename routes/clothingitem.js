@@ -7,6 +7,10 @@ const { createItem } = require("../controllers/clothingitem");
 //CREATE
 router.post("/", createItem);
 
-module.exports = router;
-
 //READ
+
+//UPDATE
+
+//DELETE
+
+module.exports = router;
