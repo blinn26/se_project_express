@@ -1,4 +1,4 @@
-const ClothingItem = require("./models/clothingitem");
+const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
   console.log(req.body);
@@ -15,4 +15,6 @@ const createItem = (req, res) => {
       res.status(500).send({ message: "Error from createItem", err });
     });
 };
-module.exports = createItem;
+module.exports = {
+  createItem,
+};

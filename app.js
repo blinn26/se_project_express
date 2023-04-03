@@ -8,9 +8,12 @@ mongoose
   .then(() => {
     console.log("Connected to the database");
   })
+
   .catch((err) => {
     console.log(err);
   });
+const routes = require("./routes");
+app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
