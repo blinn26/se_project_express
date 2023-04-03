@@ -4,9 +4,9 @@ const createItem = (req, res) => {
   console.log(req.body);
   console.log(req);
 
-  const { name, weather, imageUrl } = req.body;
+  const { name, weather, imageURL } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageURL })
     .then(({ item }) => {
       console.log(item);
       res.send({ data: item });

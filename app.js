@@ -13,6 +13,7 @@ mongoose
     console.log(err);
   });
 const routes = require("./routes");
+app.use(express.json());
 app.use(routes);
 
 app.listen(PORT, () => {
