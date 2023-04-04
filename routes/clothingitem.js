@@ -8,11 +8,10 @@ const { createItem, getItems } = require("../controllers/clothingItem");
 router.post("/", createItem);
 
 //READ
-
 router.get("/", getItems);
 
 //UPDATE
 
 //DELETE
 
-get.module.exports = router;
+module.exports = router;
