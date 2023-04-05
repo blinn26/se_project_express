@@ -1,10 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const ERROR_CODES = require("./utils/errors");
-const clothingItemRoutes = require("./routes/clothingItem");
 
 const { PORT = 3001 } = process.env;
-const app = express();
+const app = express(); // Initialize app here
+
+const clothingItemRoutes = require("./routes/clothingItem");
+app.use("/api/clothingItems", clothingItemRoutes);
 
 // Connect to MongoDB
 mongoose
@@ -24,7 +26,6 @@ const routes = require("./routes");
 
 // Use the routes
 app.use(routes);
-app.use("/api/clothingItems", clothingItemRoutes);
 
 // Handle 404 errors
 app.use((req, res) => {
