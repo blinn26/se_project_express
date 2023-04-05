@@ -1,12 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const ERROR_CODES = require("./utils/errors");
+const routes = require("./routes");
 
+const app = express();
 const { PORT = 3001 } = process.env;
-const app = express(); // Initialize app here
-
-const clothingItemRoutes = require("./routes/clothingItem");
-app.use("/api/clothingItems", clothingItemRoutes);
 
 // Connect to MongoDB
 mongoose
@@ -18,14 +15,11 @@ mongoose
     console.log(err);
   });
 
-// Parse incoming requests with JSON payloads
+// Middleware
 app.use(express.json());
 
 // Load the routes
-const routes = require("./routes");
-
-// Use the routes
-app.use(routes);
+app.use("/api", routes);
 
 // Handle 404 errors
 app.use((req, res) => {
@@ -36,7 +30,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error(err);
 
-  const statusCode = err.statusCode || ERROR_CODES.INTERNAL_SERVER_ERROR;
+  const statusCode = err.statusCode || 500;
   const message = err.message || "An error has occurred on the server.";
 
   res.status(statusCode).json({ message });
