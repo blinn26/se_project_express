@@ -1,116 +1,98 @@
-const express = require("express");
-const router = express.Router();
 const ClothingItem = require("../models/clothingItem");
 
-// GET all clothing items
-router.get("/", async (req, res) => {
-  try {
-    const clothingitems = await Clothingitem.find();
-    res.json(clothingitems);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+const createItem = (req, res) => {
+  const { name, weather, imageURL } = req.body;
 
-// GET a specific clothing item
-router.get("/:id", getClothingItem, (req, res) => {
-  res.json(res.clothingItem);
-});
+  const item = new ClothingItem({ name, weather, imageURL });
+  item
+    .validate()
+    .then(() => {
+      return item.save();
+    })
+    .then((savedItem) => {
+      res.status(200).send({ data: savedItem });
+    })
+    .catch((err) => {
+      res.status(400).send({ message: "Error from ClothingItem", err });
+    });
+};
 
-// POST a new clothing item
-router.post("/", async (req, res) => {
-  const clothingItem = new ClothingItem({
-    name: req.body.name,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
-    category: req.body.category,
-    size: req.body.size,
-  });
-  try {
-    const newClothingItem = await clothingItem.save();
-    res.status(201).json(newClothingItem);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+const getItems = (req, res) => {
+  ClothingItem.find()
+    .then((items) => {
+      res.status(200).send({ data: items });
+    })
+    .catch((err) => {
+      res.status(500).send({ message: "Error from getItems", err });
+    });
+};
 
-// PUT (update) a specific clothing item
-router.put("/:id", getClothingItem, async (req, res) => {
-  if (req.body.name != null) {
-    res.clothingItem.name = req.body.name;
-  }
-  if (req.body.description != null) {
-    res.clothingItem.description = req.body.description;
-  }
-  if (req.body.imageUrl != null) {
-    res.clothingItem.imageUrl = req.body.imageUrl;
-  }
-  if (req.body.category != null) {
-    res.clothingItem.category = req.body.category;
-  }
-  if (req.body.size != null) {
-    res.clothingItem.size = req.body.size;
-  }
-  try {
-    const updatedClothingItem = await res.clothingItem.save();
-    res.json(updatedClothingItem);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
+const updateItem = (req, res) => {
+  const { itemId } = req.params;
+  const { imageURL } = req.body;
 
-// DELETE a specific clothing item
-router.delete("/:id", getClothingItem, async (req, res) => {
-  try {
-    await res.clothingItem.remove();
-    res.json({ message: "Deleted clothing item" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } }, { new: true })
+    .then((item) => {
+      if (!item) {
+        res.status(404).send({ message: "Item not found" });
+      } else {
+        res.status(200).send({ data: item });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: "Error from updateItem", err });
+    });
+};
 
-// Middleware function to get a specific clothing item by ID
-async function getClothingItem(req, res, next) {
-  try {
-    const clothingItem = await ClothingItem.findById(req.params.id);
-    if (clothingItem == null) {
-      return res.status(404).json({ message: "Cannot find clothing item" });
+const deleteItem = (req, res) => {
+  const { itemId } = req.params;
+
+  ClothingItem.findByIdAndDelete(itemId)
+    .then((item) => {
+      if (!item) {
+        res.status(404).send({ message: "Item not found" });
+      } else {
+        res.status(204).send({});
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: "Error from deleteItem", err });
+    });
+};
+
+const likeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } },
+    { new: true },
+    (err, item) => {
+      if (err) {
+        return res.status(500).send({ error: err.message });
+      }
+      res.send(item);
     }
-    res.clothingItem = clothingItem;
-    next();
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-}
+  );
+};
 
-// Like a clothing item
-router.post("/:id/like", async (req, res) => {
-  try {
-    const clothingItem = await ClothingItem.findById(req.params.id);
-    if (clothingItem == null) {
-      return res.status(404).json({ message: "Cannot find clothing item" });
+const dislikeItem = (req, res) => {
+  ClothingItem.findByIdAndUpdate(
+    req.params.itemId,
+    { $pull: { likes: req.user._id } },
+    { new: true },
+    (err, item) => {
+      if (err) {
+        return res.status(500).send({ error: err.message });
+      }
+      res.send(item);
     }
-    clothingItem.likes++;
-    const updatedClothingItem = await clothingItem.save();
-    res.json(updatedClothingItem);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+  );
+};
 
-// Dislike a clothing item
-router.post("/:id/dislike", async (req, res) => {
-  try {
-    const clothingItem = await ClothingItem.findById(req.params.id);
-    if (clothingItem == null) {
-      return res.status(404).json({ message: "Cannot find clothing item" });
-    }
-    clothingItem.dislikes++;
-    const updatedClothingItem = await clothingItem.save();
-    res.json(updatedClothingItem);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-module.exports = router;
+module.exports = {
+  createItem,
+  getItems,
+  updateItem,
+  deleteItem,
+  likeItem,
+  dislikeItem,
+};
