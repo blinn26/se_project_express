@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
+const ERROR_CODES = require("./utils/errors");
+
 const { PORT = 3001 } = process.env;
 const app = express();
 
@@ -31,4 +33,15 @@ app.use((req, res) => {
 // Start the server
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
+});
+
+// app.js
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  const statusCode = err.statusCode || ERROR_CODES.INTERNAL_SERVER_ERROR;
+  const message = err.message || "An error has occurred on the server.";
+
+  res.status(statusCode).json({ message });
 });
