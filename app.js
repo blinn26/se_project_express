@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
 const ERROR_CODES = require("./utils/errors");
 
 const { PORT = 3001 } = process.env;
@@ -30,13 +29,7 @@ app.use((req, res) => {
   res.status(404).send({ message: "Requested resource not found" });
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`App listening at port ${PORT}`);
-});
-
-// app.js
-
+// Error handler middleware
 app.use((err, req, res, next) => {
   console.error(err);
 
@@ -44,4 +37,9 @@ app.use((err, req, res, next) => {
   const message = err.message || "An error has occurred on the server.";
 
   res.status(statusCode).json({ message });
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`App listening at port ${PORT}`);
 });
