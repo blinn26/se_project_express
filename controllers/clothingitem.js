@@ -3,12 +3,17 @@ const ClothingItem = require("../models/clothingItem");
 const createItem = (req, res) => {
   const { name, weather, imageURL } = req.body;
 
-  ClothingItem.create({ name, weather, imageURL })
-    .then((items) => {
-      res.status(200).send({ data: items });
+  const item = new ClothingItem({ name, weather, imageURL });
+  item
+    .validate()
+    .then(() => {
+      return item.save();
+    })
+    .then((savedItem) => {
+      res.status(200).send({ data: savedItem });
     })
     .catch((err) => {
-      res.status(500).send({ message: "Error from ClothingItem", err });
+      res.status(400).send({ message: "Error from ClothingItem", err });
     });
 };
 

@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require("../models/users");
 
 const getUsers = (req, res) => {
   User.find()
@@ -6,6 +6,7 @@ const getUsers = (req, res) => {
       res.status(200).send({ data: users });
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).send({ message: "Error from getUsers", err });
     });
 };
@@ -18,6 +19,7 @@ const getUser = (req, res) => {
       res.status(200).send({ data: user });
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).send({ message: "Error from getUser", err });
     });
 };
@@ -30,6 +32,7 @@ const createUser = (req, res) => {
       res.status(200).send({ data: user });
     })
     .catch((err) => {
+      console.log(err);
       res.status(500).send({ message: "Error from createUser", err });
     });
 };
