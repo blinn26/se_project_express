@@ -1,4 +1,4 @@
-const ClothingItem = require("../models/clothingItem");
+const ClothingItem = require("../models/clothingitem");
 
 const createItem = (req, res) => {
   const { name, weather, imageURL } = req.body;

@@ -6,7 +6,7 @@ const {
   deleteItem,
   likeItem,
   dislikeItem,
-} = require("../controllers/clothingItem");
+} = require("../controllers/clothingitem");
 
 //CRUD METHODS
 
