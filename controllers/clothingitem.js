@@ -61,16 +61,9 @@ const deleteItem = (req, res) => {
 };
 
 const likeItem = (req, res) => {
-  const itemId = req.params.itemId;
-  const userId = req.user ? req.user._id : null;
-
-  if (!userId) {
-    return res.status(401).send({ message: "Unauthorized" });
-  }
-
   ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $addToSet: { likes: userId } },
+    req.params.itemId,
+    { $addToSet: { likes: req.user._id } },
     { new: true },
     (err, item) => {
       if (err) {
@@ -82,16 +75,9 @@ const likeItem = (req, res) => {
 };
 
 const dislikeItem = (req, res) => {
-  const itemId = req.params.itemId;
-  const userId = req.user ? req.user._id : null;
-
-  if (!userId) {
-    return res.status(401).send({ message: "Unauthorized" });
-  }
-
   ClothingItem.findByIdAndUpdate(
-    itemId,
-    { $pull: { likes: userId } },
+    req.params.itemId,
+    { $pull: { likes: req.user._id } },
     { new: true },
     (err, item) => {
       if (err) {
