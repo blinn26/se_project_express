@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes");
+const router = require("express").Router({ prefix: "/routes" });
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -19,7 +20,8 @@ mongoose
 app.use(express.json());
 
 // Load the routes
-app.use("/api", routes);
+app.use("/", routes);
+app.use("/", router);
 
 // Handle 404 errors
 app.use((req, res) => {
