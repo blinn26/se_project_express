@@ -20,6 +20,9 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
+      if (err.name === "CastError") {
+        return res.status(400).send({ message: err.message });
+      }
       res.status(500).send({ message: "Error from getUser", err });
     });
 };
