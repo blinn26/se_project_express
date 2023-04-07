@@ -37,7 +37,7 @@ function createUser(req, res) {
 
   User.create({ name, avatar })
     .then((user) => {
-      res.status(200).send({ data: user });
+      res.status(201).send({ data: user });
     })
     .catch((err) => {
       console.log(err);
