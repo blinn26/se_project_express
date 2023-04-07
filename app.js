@@ -39,6 +39,12 @@ app.use((err, req, res, next) => {
 
   res.status(statusCode).json({ message });
 });
+app.use((req, res, next) => {
+  req.user = {
+    _id: "642b48dc3e96a204b1fd8a2b", // paste the _id of the test user created in the previous step
+  };
+  next();
+});
 
 // Start the server
 app.listen(PORT, () => {
