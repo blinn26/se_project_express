@@ -33,7 +33,11 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).send({ message: "Error from createUser", err });
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: err.message });
+      } else {
+        res.status(500).send({ message: "Error from createUser", err });
+      }
     });
 };
 
