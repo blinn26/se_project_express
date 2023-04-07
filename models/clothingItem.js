@@ -4,6 +4,8 @@ const validator = require("validator");
 const clothingItemSchema = new mongoose.Schema({
   name: {
     type: String,
+    minlength: 2,
+    maxlength: 30,
     required: true,
   },
   weather: {
@@ -14,8 +16,8 @@ const clothingItemSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: (v) => validator.isURL(v),
-      message: "{VALUE} Link is not a valid URL!",
+      validator: (valid) => validator.isURL(valid),
+      message: "{VALID} Link is not a valid URL!",
     },
   },
 });
