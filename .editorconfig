@@ -33,16 +33,4 @@ trim_trailing_whitespace = false
 # Possible values - true, false
 insert_final_newline = true
 
-module.exports =
-  env: {
-    browser: true,
-    commonjs: true,
-    es2021: true,
-  },
-  // update the extensions
-  extends: ["eslint:recommended", "airbnb-base", "prettier"],
-  overrides: [],
-  parserOptions: {
-    ecmaVersion: "latest",
-  },
-  rules: {},
+
