@@ -1,4 +1,6 @@
 const ClothingItem = require("../models/clothingitem");
+const mongoose = require("mongoose");
+
 const User = require("../models/users");
 
 const createItem = (req, res) => {
@@ -29,10 +31,13 @@ const getItems = (req, res) => {
       res.status(500).send({ message: "Error from getItems", err });
     });
 };
-
 const updateItem = (req, res) => {
   const { itemId } = req.params;
   const { imageURL } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid item ID" });
+  }
 
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } }, { new: true })
     .then((item) => {
