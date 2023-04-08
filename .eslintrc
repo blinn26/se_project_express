@@ -1,15 +1,19 @@
 {
   "env": {
-    "browser": true,
-    "commonjs": true,
-    "es2021": true
+    "browser": true, // allow browser-specific global variables
+    "commonjs": true, // allow CommonJS module syntax
+    "es2021": true // enable ECMAScript 2021 syntax
   },
-  "extends": "airbnb-base",
-  "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["foo_", "bar"] }]
-  },
-  "overrides": [],
+  "extends": [
+    "eslint:recommended", // enable recommended ESLint rules
+    "airbnb-base", // enable Airbnb's JavaScript style guide rules
+    "prettier" // enable Prettier's code formatting rules
+  ],
+  "overrides": [], // no additional configurations for specific files
   "parserOptions": {
-    "ecmaVersion": "latest"
+    "ecmaVersion": "latest" // use the latest ECMAScript version
+  },
+  "rules": {
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }] // disallow most underscore variable names, except for "_id"
   }
 }
