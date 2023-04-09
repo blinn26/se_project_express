@@ -6,8 +6,7 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.status(ERROR_CODES.OK).send({ data: users });
     })
-    .catch((err) => {
-      console.error(err);
+    .catch(() => {
       res
         .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
         .send({ message: "Error from getUsers" });
@@ -19,7 +18,6 @@ const getUser = (req, res) => {
 
   User.findById(userId)
     .then((user) => {
-      console.log(user);
       if (!user) {
         res.status(ERROR_CODES.NOT_FOUND).send({ message: "User not found" });
       } else {
@@ -27,7 +25,6 @@ const getUser = (req, res) => {
       }
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "CastError") {
         res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid id" });
       } else {
@@ -46,7 +43,6 @@ function createUser(req, res) {
       res.status(ERROR_CODES.CREATED).send({ data: user });
     })
     .catch((err) => {
-      console.error(err);
       if (err.name === "ValidationError") {
         res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
       } else {
