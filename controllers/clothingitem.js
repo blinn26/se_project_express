@@ -21,9 +21,7 @@ const createItem = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Error from ClothingItem" });
+      res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid Input" });
     });
 };
 
