@@ -78,7 +78,9 @@ const deleteItem = (req, res) => {
           .status(ERROR_CODES.NOT_FOUND)
           .send({ message: "Item not found" });
       }
-      return ClothingItem.findByIdAndDelete(itemId);
+      return ClothingItem.findByIdAndDelete(itemId).then(() =>
+        res.send({ message: "Item deleted" })
+      );
     })
     .then(() => {
       res.status(ERROR_CODES.OK).end();
