@@ -54,47 +54,70 @@ const updateItem = (req, res) => {
 };
 
 const deleteItem = (req, res) => {
-  const { itemId } = req.params;
+  const itemId = req.params.itemId;
 
-  ClothingItem.findByIdAndDelete(itemId)
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    return res.status(400).send({ message: "Invalid item ID" });
+  }
+
+  ClothingItem.findById(itemId)
     .then((item) => {
       if (!item) {
-        res.status(404).send({ message: "Item not found" });
-      } else {
-        res.status(204).send({});
+        return res.status(404).send({ message: "Item not found" });
       }
+
+      return ClothingItem.findByIdAndDelete(itemId);
+    })
+    .then(() => {
+      res.status(204).end();
     })
     .catch((err) => {
       res.status(500).send({ message: "Error from deleteItem", err });
     });
 };
 
-const likeItem = (req, res) => {
-  ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true },
-    (err, item) => {
-      if (err) {
-        return res.status(500).send({ error: err.message });
-      }
-      res.send(item);
+const likeItem = async (req, res) => {
+  try {
+    const itemId = req.params.itemId;
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).send({ message: "Invalid item ID" });
     }
-  );
+
+    const item = await ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $addToSet: { likes: req.user._id } },
+      { new: true }
+    );
+    if (!item) {
+      return res.status(404).send({ message: "Item not found" });
+    }
+
+    res.status(200).send({ data: item });
+  } catch (error) {
+    res.status(500).send({ message: "Error from likeItem", error });
+  }
 };
 
-const dislikeItem = (req, res) => {
-  ClothingItem.findByIdAndUpdate(
-    req.params.itemId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-    (err, item) => {
-      if (err) {
-        return res.status(500).send({ error: err.message });
-      }
-      res.send(item);
+const dislikeItem = async (req, res) => {
+  try {
+    const itemId = req.params.itemId;
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res.status(400).send({ message: "Invalid item ID" });
     }
-  );
+
+    const item = await ClothingItem.findByIdAndUpdate(
+      itemId,
+      { $pull: { likes: req.user._id } },
+      { new: true }
+    );
+    if (!item) {
+      return res.status(404).send({ message: "Item not found" });
+    }
+
+    res.status(200).send({ data: item });
+  } catch (error) {
+    res.status(500).send({ message: "Error from dislikeItem", error });
+  }
 };
 
 module.exports = {
