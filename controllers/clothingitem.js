@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
-const ClothingItem = require("../models/clothingitem");
-const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
+const ClothingItem = require("../models/clothingItem");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
@@ -15,7 +14,7 @@ const createItem = (req, res) => {
     .then((savedItem) => {
       res.status(ERROR_CODES.OK).send({ data: savedItem });
     })
-    .catch((err) => {
+    .catch(() => {
       res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid Input" });
     });
 };
@@ -25,39 +24,33 @@ const getItems = (req, res) => {
     .then((items) => {
       res.status(ERROR_CODES.OK).send({ data: items });
     })
-    .catch((err) => {
+    .catch(() => {
       res
         .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
         .send({ message: "Error from getItems" });
     });
 };
-
-const deleteItem = (req, res) => {
-  const itemId = req.params.itemId;
-  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+const deleteItem = async (req, res) => {
+  try {
+    const { itemId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid item ID" });
+    }
+    const item = await ClothingItem.findById(itemId);
+    if (!item) {
+      return res
+        .status(ERROR_CODES.NOT_FOUND)
+        .send({ message: "Item not found" });
+    }
+    await ClothingItem.findByIdAndDelete(itemId);
+    return res.status(ERROR_CODES.OK).send({ message: "Item deleted" });
+  } catch (error) {
     return res
-      .status(ERROR_CODES.BAD_REQUEST)
-      .send({ message: "Invalid item ID" });
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Error from deleteItem" });
   }
-  ClothingItem.findById(itemId)
-    .then((item) => {
-      if (!item) {
-        return res
-          .status(ERROR_CODES.NOT_FOUND)
-          .send({ message: "Item not found" });
-      }
-      return ClothingItem.findByIdAndDelete(itemId).then(() =>
-        res.send({ message: "Item deleted" })
-      );
-    })
-    .then(() => {
-      res.status(ERROR_CODES.OK).end();
-    })
-    .catch((err) => {
-      res
-        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: "Error from deleteItem" });
-    });
 };
 
 const likeItem = async (req, res) => {
@@ -82,13 +75,11 @@ const likeItem = async (req, res) => {
 
     return res.status(ERROR_CODES.OK).send({ data: item });
   } catch (error) {
-    console.error(error);
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from likeItem" });
   }
 };
-
 const dislikeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
@@ -109,9 +100,9 @@ const dislikeItem = async (req, res) => {
         .send({ message: "Item not found" });
     }
 
-    res.status(ERROR_CODES.OK).send({ data: item });
+    return res.status(ERROR_CODES.OK).send({ data: item });
   } catch (error) {
-    res
+    return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from dislikeItem" });
   }
