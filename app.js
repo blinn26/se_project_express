@@ -30,8 +30,11 @@ app.use((req, res, next) => {
 app.use("/", router);
 
 // Handle 404 errors
+
 app.use((req, res) => {
-  res.status(404).send({ message: "Requested resource not found" });
+  res
+    .status(ERROR_CODES.NOT_FOUND)
+    .send({ message: "Requested resource not found" });
 });
 
 // Error handler middleware
