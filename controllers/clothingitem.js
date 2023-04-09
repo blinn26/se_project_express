@@ -55,13 +55,14 @@ const updateItem = (req, res) => {
 
 const deleteItem = (req, res) => {
   const itemId = req.params.itemId;
-
+  console.log(itemId);
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res.status(400).send({ message: "Invalid item ID" });
   }
 
   ClothingItem.findById(itemId)
     .then((item) => {
+      console.log(item);
       if (!item) {
         return res.status(404).send({ message: "Item not found" });
       }
@@ -72,6 +73,7 @@ const deleteItem = (req, res) => {
       res.status(204).end();
     })
     .catch((err) => {
+      console.error(err);
       res.status(500).send({ message: "Error from deleteItem", err });
     });
 };
