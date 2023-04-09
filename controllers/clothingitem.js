@@ -5,7 +5,6 @@ const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
 
 const createItem = (req, res) => {
-  console.log(req.body);
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
@@ -153,7 +152,6 @@ const dislikeItem = async (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   likeItem,
   dislikeItem,

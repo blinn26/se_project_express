@@ -5,6 +5,14 @@ const router = require("./routes/index");
 const app = express();
 const { PORT = 3001 } = process.env;
 
+// Define error codes
+const ERROR_CODES = {
+  OK: 200,
+  BAD_REQUEST: 400,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+};
+
 // Connect to MongoDB
 mongoose
   .connect("mongodb://localhost:27017/wtwr_db")
@@ -30,7 +38,6 @@ app.use((req, res, next) => {
 app.use("/", router);
 
 // Handle 404 errors
-
 app.use((req, res) => {
   res
     .status(ERROR_CODES.NOT_FOUND)
@@ -41,7 +48,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error(err);
 
-  const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || ERROR_CODES.INTERNAL_SERVER_ERROR;
   const message = err.message || "An error has occurred on the server.";
 
   res.status(statusCode).json({ message });
