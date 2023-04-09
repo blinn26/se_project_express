@@ -4,10 +4,11 @@ const mongoose = require("mongoose");
 const User = require("../models/users");
 
 const createItem = (req, res) => {
-  const { name, weather, imageURL } = req.body;
+  console.log(req.body);
+  const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
-  const item = new ClothingItem({ name, weather, imageURL, owner });
+  const item = new ClothingItem({ name, weather, imageUrl, owner });
 
   item
     .validate()
@@ -33,13 +34,13 @@ const getItems = (req, res) => {
 };
 const updateItem = (req, res) => {
   const { itemId } = req.params;
-  const { imageURL } = req.body;
+  const { imageUrl } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(itemId)) {
     return res.status(400).send({ message: "Invalid item ID" });
   }
 
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageURL } }, { new: true })
+  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
     .then((item) => {
       if (!item) {
         res.status(404).send({ message: "Item not found" });
