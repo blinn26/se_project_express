@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const ERROR_CODES = require("../utils/errors");
-const ClothingItem = require("../models/clothingItem");
+const ClothingItem = require("../models/clothingitem");
 
 const createItem = (req, res) => {
   const { name, weather, imageUrl } = req.body;
