@@ -16,12 +16,8 @@ const ERROR_CODES = {
 // Connect to MongoDB
 mongoose
   .connect("mongodb://localhost:27017/wtwr_db")
-  .then(() => {
-    console.log("Connected to the database");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+  .then(() => {})
+  .catch(() => {});
 
 // Middleware
 app.use(express.json());
@@ -45,9 +41,7 @@ app.use((req, res) => {
 });
 
 // Error handler middleware
-app.use((err, req, res, next) => {
-  console.error(err);
-
+app.use((err, req, res) => {
   const statusCode = err.statusCode || ERROR_CODES.INTERNAL_SERVER_ERROR;
   const message = err.message || "An error has occurred on the server.";
 
@@ -55,6 +49,4 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`App listening at port ${PORT}`);
-});
+app.listen(PORT, () => {});
