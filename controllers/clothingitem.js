@@ -67,7 +67,7 @@ const deleteItem = (req, res) => {
       return ClothingItem.findByIdAndDelete(itemId);
     })
     .then(() => {
-      res.status(204).end();
+      res.status(200).end();
     })
     .catch((err) => {
       res.status(500).send({ message: "Error from deleteItem", err });
