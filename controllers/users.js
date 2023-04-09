@@ -1,4 +1,5 @@
 const User = require("../models/users");
+const ERROR_CODES = require("../utils/errors");
 
 const getUsers = (req, res) => {
   User.find()
@@ -6,8 +7,10 @@ const getUsers = (req, res) => {
       res.status(200).send({ data: users });
     })
     .catch((err) => {
-      console.log(err);
-      res.status(500).send({ message: "Error from getUsers", err });
+      console.error(err);
+      res
+        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: "Error from getUsers" });
     });
 };
 
@@ -16,19 +19,21 @@ const getUser = (req, res) => {
 
   User.findById(userId)
     .then((user) => {
-      console.log(user);
       if (!user) {
-        res.status(404).send({ message: "User not found" });
+        res.status(ERROR_CODES.NOT_FOUND).send({ message: "User not found" });
       } else {
         res.status(200).send({ data: user });
       }
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       if (err.name === "CastError") {
-        return res.status(400).send({ message: err.message });
+        res.status(ERROR_CODES.BAD_REQUEST).send({ message: err.message });
+      } else {
+        res
+          .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+          .send({ message: "Error from getUser" });
       }
-      res.status(500).send({ message: "Error from getUser", err });
     });
 };
 
@@ -40,11 +45,13 @@ function createUser(req, res) {
       res.status(201).send({ data: user });
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err);
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
+        res.status(ERROR_CODES.BAD_REQUEST).send({ message: err.message });
       } else {
-        res.status(500).send({ message: "Error from createUser", err });
+        res
+          .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+          .send({ message: "Error from createUser" });
       }
     });
 }
