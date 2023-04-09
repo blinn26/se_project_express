@@ -52,7 +52,6 @@ const updateItem = (req, res) => {
       res.status(500).send({ message: "Error from updateItem", err });
     });
 };
-
 const deleteItem = (req, res) => {
   const itemId = req.params.itemId;
   console.log(itemId);
@@ -62,18 +61,15 @@ const deleteItem = (req, res) => {
 
   ClothingItem.findById(itemId)
     .then((item) => {
-      console.log(item);
       if (!item) {
         return res.status(404).send({ message: "Item not found" });
       }
-
       return ClothingItem.findByIdAndDelete(itemId);
     })
     .then(() => {
       res.status(204).end();
     })
     .catch((err) => {
-      console.error(err);
       res.status(500).send({ message: "Error from deleteItem", err });
     });
 };
