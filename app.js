@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes/index");
-
+const helmet = require("helmet");
 const app = express();
 const { PORT = 3001 } = process.env;
 
@@ -27,3 +27,6 @@ app.use("/", router);
 
 // Start the server
 app.listen(PORT, () => {});
+
+// Helmet HTTP headers
+app.use(helmet());
