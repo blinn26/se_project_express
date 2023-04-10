@@ -5,14 +5,6 @@ const router = require("./routes/index");
 const app = express();
 const { PORT = 3001 } = process.env;
 
-// Define error codes
-const ERROR_CODES = {
-  OK: 200,
-  BAD_REQUEST: 400,
-  NOT_FOUND: 404,
-  INTERNAL_SERVER_ERROR: 500,
-};
-
 // Connect to MongoDB
 mongoose
   .connect("mongodb://localhost:27017/wtwr_db")
