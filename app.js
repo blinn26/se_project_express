@@ -25,20 +25,5 @@ app.use((req, res, next) => {
 // Load the routes
 app.use("/", router);
 
-// Handle 404 errors
-app.use((req, res) => {
-  res
-    .status(ERROR_CODES.NOT_FOUND)
-    .send({ message: "Requested resource not found" });
-});
-
-// Error handler middleware
-app.use((err, req, res) => {
-  const statusCode = err.statusCode || ERROR_CODES.INTERNAL_SERVER_ERROR;
-  const message = err.message || "An error has occurred on the server.";
-
-  res.status(statusCode).json({ message });
-});
-
 // Start the server
 app.listen(PORT, () => {});
