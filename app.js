@@ -15,7 +15,7 @@ mongoose
 app.use(express.json());
 
 // Add this middleware before loading the routes
-app.use((req, next) => {
+app.use((req, res, next) => {
   req.user = {
     _id: "642b48dc3e96a204b1fd8a2b", // paste the _id of the test user created in the previous step
   };

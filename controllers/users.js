@@ -39,14 +39,18 @@ function createUser(req, res) {
   const { name, avatar } = req.body;
 
   User.create({ name, avatar })
+
     .then((user) => {
       res.status(ERROR_CODES.OK).send({ data: user });
     })
+
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
       } else {
-        res.status(500).send({ message: "Error from createUser" });
+        res
+          .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+          .send({ message: "Error from createUser" });
       }
     });
 }
