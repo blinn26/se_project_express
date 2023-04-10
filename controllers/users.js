@@ -40,13 +40,13 @@ function createUser(req, res) {
 
   User.create({ name, avatar })
     .then((user) => {
-      res.status(ERROR_CODES.CREATED).send({ data: user });
+      res.status(ERROR_CODES.OK).send({ data: user });
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
       } else {
-        res.status(200).send({ message: "Error from createUser" });
+        res.status(500).send({ message: "Error from createUser" });
       }
     });
 }
