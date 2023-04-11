@@ -13,6 +13,7 @@
   "author": "Ben Linn",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "express": "^4.18.2",
     "helmet": "^6.1.2",
     "mongoose": "^7.0.3",

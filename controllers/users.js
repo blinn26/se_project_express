@@ -1,5 +1,6 @@
 const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
+const bcrypt = require("bcryptjs");
 
 const getUsers = (req, res) => {
   User.find()
@@ -35,24 +36,42 @@ const getUser = (req, res) => {
     });
 };
 
-function createUser(req, res) {
-  const { name, avatar } = req.body;
+async function createUser(req, res) {
+  const { name, email, password, avatar } = req.body;
 
-  User.create({ name, avatar })
+  try {
+    // Check if a user with the same email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "A user with this email already exists." });
+    }
 
-    .then((user) => {
-      res.status(ERROR_CODES.OK).send({ data: user });
-    })
+    // Hash the password before saving to the database
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
-      } else {
-        res
-          .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-          .send({ message: "Error from createUser" });
-      }
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      avatar,
     });
+
+    res.status(ERROR_CODES.OK).send({ data: user });
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
+    } else if (err.code === 11000) {
+      res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "A user with this email already exists." });
+    } else {
+      res
+        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+        .send({ message: "Error from createUser" });
+    }
+  }
 }
 
 module.exports = {
