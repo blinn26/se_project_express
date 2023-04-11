@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "your_jwt_secret"; // Replace this with your JWT secret
+const config = require("../utils/config");
 const ERROR_CODES = require("../utils/errors");
 
 const auth = (req, res, next) => {
@@ -15,7 +15,7 @@ const auth = (req, res, next) => {
 
   let payload;
   try {
-    payload = jwt.verify(token, JWT_SECRET);
+    payload = jwt.verify(token, config.JWT_SECRET);
   } catch (err) {
     return res
       .status(ERROR_CODES.UNAUTHORIZED)

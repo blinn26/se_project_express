@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes/index");
 const config = require("./utils/config");
+const auth = require("./middlewares/auth");
 
 const app = express();
 const { PORT = 3001 } = process.env; // get PORT from environment variable
@@ -25,6 +26,9 @@ app.use((req, res, next) => {
 
 // Load the routes
 app.use("/", router);
+
+// Apply the auth middleware to the "/users" route
+app.use("/users", auth, router);
 
 // Super Secret Key
 const secretKey = config.JWT_SECRET;

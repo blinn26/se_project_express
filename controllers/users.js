@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
-const { JWT_SECRET } = require("../utils/config");
+const { JWT_SECRET: MY_APP_SECRET_KEY } = require("../utils/config");
 
 const getUsers = (req, res) => {
   User.find()
@@ -98,7 +98,7 @@ const login = async (req, res) => {
         .json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.MY_APP_SECRET_KEY);
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
 
     res.status(ERROR_CODES.OK).json({ token });
   } catch (err) {
