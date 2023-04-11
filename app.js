@@ -1,9 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = require("./routes/index");
+const config = require("./utils/config");
 
 const app = express();
-const { PORT = 3001 } = process.env;
+const { PORT = 3001 } = process.env; // get PORT from environment variable
 
 // Connect to MongoDB
 mongoose
@@ -25,5 +26,16 @@ app.use((req, res, next) => {
 // Load the routes
 app.use("/", router);
 
+// Super Secret Key
+const secretKey = config.JWT_SECRET;
+
+// Check if the secret key is set
+if (!secretKey) {
+  console.error("JWT_SECRET is not set in the configuration file");
+  process.exit(1);
+}
+
 // Start the server
-app.listen(PORT, () => {});
+app.listen(PORT, () => {
+  console.log(`Server is listening on port ${PORT}`);
+});
