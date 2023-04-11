@@ -77,17 +77,41 @@ async function createUser(req, res) {
 
   return Promise.resolve();
 }
-async function login(req, res) {
+const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findUserByCredentials(email, password);
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "7d" });
-    res.status(ERROR_CODES.OK).send({ token });
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(ERROR_CODES.NOT_FOUND)
+        .json({ message: "User not found" });
+    }
+
+    const passwordMatches =
+      password && (await bcrypt.compare(password, user.password));
+
+    if (!passwordMatches) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.MY_APP_SECRET_KEY);
+
+    res.status(ERROR_CODES.OK).json({ token });
   } catch (err) {
-    res.status(ERROR_CODES.UNAUTHORIZED).send({ message: err.message });
+    console.error(err);
+    res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Internal server error" });
   }
-}
+};
+
+module.exports = {
+  login,
+};
 module.exports = {
   getUsers,
   getUser,
