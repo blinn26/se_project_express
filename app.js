@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 app.use("/", router);
 
 // Apply the auth middleware to the "/users" route
-app.use("/users", auth, router);
+app.use("/users", auth);
 
 // Super Secret Key
 const secretKey = config.JWT_SECRET;
