@@ -2,14 +2,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
-const { JWT_SECRET: MY_APP_SECRET_KEY } = require("../utils/config");
+const { JWT_SECRET } = require("../utils/config");
 
 const getUsers = (req, res) => {
   User.find()
     .then((users) => {
       res.status(ERROR_CODES.OK).send({ data: users });
     })
-    .catch(() => {
+    .catch((error) => {
+      console.error(error);
       res
         .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
         .send({ message: "Error from getUsers" });
@@ -27,8 +28,9 @@ const getUser = (req, res) => {
         res.status(ERROR_CODES.OK).send({ data: user });
       }
     })
-    .catch((err) => {
-      if (err.name === "CastError") {
+    .catch((error) => {
+      console.error(error);
+      if (error.name === "CastError") {
         res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid id" });
       } else {
         res
@@ -38,7 +40,7 @@ const getUser = (req, res) => {
     });
 };
 
-async function createUser(req, res) {
+const createUser = async (req, res) => {
   const { name, email, password, avatar } = req.body;
 
   try {
@@ -61,10 +63,11 @@ async function createUser(req, res) {
     });
 
     res.status(ERROR_CODES.OK).send({ data: user });
-  } catch (err) {
-    if (err.name === "ValidationError") {
+  } catch (error) {
+    console.error(error);
+    if (error.name === "ValidationError") {
       res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
-    } else if (err.code === 11000) {
+    } else if (error.code === 11000) {
       res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
@@ -74,9 +77,8 @@ async function createUser(req, res) {
         .send({ message: "Error from createUser" });
     }
   }
+};
 
-  return Promise.resolve();
-}
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -89,8 +91,7 @@ const login = async (req, res) => {
         .json({ message: "User not found" });
     }
 
-    const passwordMatches =
-      password && (await bcrypt.compare(password, user.password));
+    const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {
       return res
@@ -98,20 +99,17 @@ const login = async (req, res) => {
         .json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     res.status(ERROR_CODES.OK).json({ token });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
   }
 };
 
-module.exports = {
-  login,
-};
 module.exports = {
   getUsers,
   getUser,
