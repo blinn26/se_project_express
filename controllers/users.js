@@ -128,10 +128,50 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const updates = Object.keys(req.body);
+    const allowedUpdates = ["name", "email", "password", "age"];
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
+
+    if (!isValidOperation) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid updates!" });
+    }
+
+    const userId = req.user.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(ERROR_CODES.NOT_FOUND)
+        .send({ message: "User not found" });
+    }
+
+    updates.forEach((update) => (user[update] = req.body[update]));
+    await user.save({ validateBeforeSave: true });
+
+    res.send({ data: user });
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: error.message });
+    }
+    res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Internal server error" });
+  }
+};
+
 module.exports = {
   getCurrentUser,
   getUsers,
   getUser,
   createUser,
   login,
+  updateProfile,
 };

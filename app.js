@@ -39,6 +39,10 @@ if (!secretKey) {
   process.exit(1);
 }
 
+const userRoutes = require("./routes/users");
+
+app.use("/users", userRoutes);
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
