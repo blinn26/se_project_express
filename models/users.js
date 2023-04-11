@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
     validate: {
-      validator: function (v) {
+      validator(v) {
         return validator.isEmail(v);
       },
       message: "{VALUE} is not a valid email address",
@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
     default:
       "https://practicum-content.s3.us-west-1.amazonaws.com/software-engineer/wtwr-project/Elise.png",
     validate: {
-      validator: function (v) {
+      validator(v) {
         return validator.isURL(v);
       },
       message: "{VALUE} is not a valid URL",

@@ -1,6 +1,6 @@
+const bcrypt = require("bcryptjs");
 const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
-const bcrypt = require("bcryptjs");
 
 const getUsers = (req, res) => {
   User.find()
@@ -72,6 +72,8 @@ async function createUser(req, res) {
         .send({ message: "Error from createUser" });
     }
   }
+
+  return Promise.resolve();
 }
 
 module.exports = {
