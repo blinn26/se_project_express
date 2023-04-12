@@ -9,8 +9,7 @@ const getUsers = (req, res) => {
     .then((users) => {
       res.status(ERROR_CODES.OK).send({ data: users });
     })
-    .catch((error) => {
-      console.error(error);
+    .catch(() => {
       res
         .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
         .send({ message: "Error from getUsers" });
@@ -29,7 +28,6 @@ const getUser = (req, res) => {
       }
     })
     .catch((error) => {
-      console.error(error);
       if (error.name === "CastError") {
         res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid id" });
       } else {
@@ -64,7 +62,6 @@ const createUser = async (req, res) => {
 
     res.status(ERROR_CODES.OK).send({ data: user });
   } catch (error) {
-    console.error(error);
     if (error.name === "ValidationError") {
       res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
     } else if (error.code === 11000) {
@@ -103,7 +100,6 @@ const login = async (req, res) => {
 
     res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
-    console.error(error);
     res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
@@ -121,7 +117,6 @@ const getCurrentUser = async (req, res) => {
 
     res.status(ERROR_CODES.OK).send({ data: user });
   } catch (err) {
-    console.error(err);
     res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
@@ -142,7 +137,7 @@ const updateProfile = async (req, res) => {
         .send({ message: "Invalid updates!" });
     }
 
-    const userId = req.user.userId;
+    const { userId } = req.user;
 
     const user = await User.findById(userId);
     if (!user) {
@@ -151,7 +146,10 @@ const updateProfile = async (req, res) => {
         .send({ message: "User not found" });
     }
 
-    updates.forEach((update) => (user[update] = req.body[update]));
+    updates.forEach((update) => {
+      user[update] = req.body[update];
+    });
+
     await user.save({ validateBeforeSave: true });
 
     res.send({ data: user });
