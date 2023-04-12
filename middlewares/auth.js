@@ -23,7 +23,7 @@ const auth = (req, res, next) => {
   }
 
   req.user = payload;
-  next();
+  return next(); // Add return statement here
 };
 
 module.exports = auth;
