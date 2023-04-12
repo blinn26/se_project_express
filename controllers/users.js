@@ -118,9 +118,9 @@ const getCurrentUser = async (req, res) => {
         .send({ message: "User not found" });
     }
 
-    res.status(ERROR_CODES.OK).send({ data: user });
+    return res.status(ERROR_CODES.OK).send({ data: user });
   } catch (err) {
-    res
+    return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
@@ -155,14 +155,14 @@ const updateProfile = async (req, res) => {
 
     await user.save({ validateBeforeSave: true });
 
-    res.send({ data: user });
+    return res.send({ data: user });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: error.message });
     }
-    res
+    return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
