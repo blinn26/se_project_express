@@ -60,19 +60,21 @@ const createUser = async (req, res) => {
       avatar,
     });
 
-    res.status(ERROR_CODES.OK).send({ data: user });
+    return res.status(ERROR_CODES.OK).send({ data: user });
   } catch (error) {
     if (error.name === "ValidationError") {
-      res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid data" });
-    } else if (error.code === 11000) {
-      res
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid data" });
+    }
+    if (error.code === 11000) {
+      return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
-    } else {
-      res
-        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: "Error from createUser" });
     }
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Error from createUser" });
   }
 };
 
@@ -98,13 +100,14 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
-    res.status(ERROR_CODES.OK).json({ token });
+    return res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
-    res
+    return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
   }
 };
+
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
