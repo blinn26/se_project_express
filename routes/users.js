@@ -5,8 +5,8 @@ const { getCurrentUser } = require("../controllers/users");
 const userController = require("../controllers/users");
 
 router.get("/me", auth, getCurrentUser);
-router.get("/", getUsers);
-router.get("/:userId", getUser);
+/* router.get("/", getUsers);
+router.get("/:userId", getUser); */
 
 router.patch("/me", userController.updateProfile);
 
