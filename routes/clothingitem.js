@@ -1,3 +1,4 @@
+const auth = require("../middlewares/auth");
 const router = require("express").Router();
 const {
   createItem,
@@ -10,7 +11,7 @@ const {
 // CRUD METHODS
 
 // CREATE
-router.post("/", createItem);
+router.post("/", auth, createItem);
 
 // READ
 router.get("/", getItems);
