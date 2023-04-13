@@ -5,8 +5,8 @@ const { login, createUser } = require("../controllers/users"); // Add this line
 const auth = require("../middlewares/auth"); // Add this line to import the auth middleware
 const ERROR_CODES = require("../utils/errors"); // Import the ERROR_CODES
 
-router.use("/items", clothingitem);
-router.use("/users", userRouter);
+router.use("/items", auth, clothingitem);
+router.use("/users", auth, userRouter);
 router.use("/users", auth, userRouter); // Add auth here to protect the /users routes
 // Add these two lines for the signin and signup routes
 
