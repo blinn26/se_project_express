@@ -126,7 +126,7 @@ const getCurrentUser = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["name", "email", "password", "avatar"];
@@ -174,5 +174,5 @@ module.exports = {
   getUser,
   createUser,
   login,
-  updateProfile,
+  updateUser,
 };
