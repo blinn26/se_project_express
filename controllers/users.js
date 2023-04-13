@@ -129,7 +129,7 @@ const getCurrentUser = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "email", "password", "age"];
+    const allowedUpdates = ["name", "email", "password", "avatar"];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)
     );
