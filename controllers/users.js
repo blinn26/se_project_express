@@ -17,9 +17,9 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const { userId } = req.params;
+  const { _id } = req.params;
 
-  User.findById(userId)
+  User.findById(_id)
     .then((user) => {
       if (!user) {
         res.status(ERROR_CODES.NOT_FOUND).send({ message: "User not found" });
@@ -110,7 +110,7 @@ const login = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user._id);
 
     if (!user) {
       return res
@@ -140,9 +140,9 @@ const updateProfile = async (req, res) => {
         .send({ message: "Invalid updates!" });
     }
 
-    const { userId } = req.user;
+    const { _id } = req.user;
 
-    const user = await User.findById(userId);
+    const user = await User.findById(_id);
     if (!user) {
       return res
         .status(ERROR_CODES.NOT_FOUND)

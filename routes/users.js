@@ -11,7 +11,7 @@ const {
 } = require("../controllers/users");
 
 router.get("/", auth, getUsers);
-router.get("/:userId", auth, getUser);
+router.get("/_id", auth, getUser);
 router.post("/", createUser);
 router.post("/login", login);
 router.get("/me", auth, getCurrentUser);
