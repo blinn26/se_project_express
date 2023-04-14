@@ -4,9 +4,14 @@ const router = require("./routes/index");
 const config = require("./utils/config");
 const auth = require("./middlewares/auth");
 const userRoutes = require("./routes/users");
-
+const cors = require("cors");
 const app = express();
 const { PORT = 3001 } = process.env; // get PORT from environment variable
+
+//app.js
+app.use(express.static("public"));
+
+app.use(cors());
 
 // Connect to MongoDB
 mongoose
