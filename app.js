@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const router = require("./routes/index");
 const config = require("./utils/config");
 const auth = require("./middlewares/auth");
+const userRoutes = require("./routes/users");
 
 const app = express();
 const { PORT = 3001 } = process.env; // get PORT from environment variable
@@ -16,19 +17,12 @@ mongoose
 // Middleware
 app.use(express.json());
 
-// Add this middleware before loading the routes
-/*  app.use((req, res, next) => {
-  req.user = {
-    _id: "642b48dc3e96a204b1fd8a2b", // paste the _id of the test user created in the previous step
-  };
-  next();
-});  */
+// Apply the auth middleware to the "/users" route
+app.use("/users", auth);
 
 // Load the routes
 app.use("/", router);
-
-// Apply the auth middleware to the "/users" route
-app.use("/users", auth);
+app.use("/users", userRoutes);
 
 // Super Secret Key
 const secretKey = config.JWT_SECRET;
@@ -37,10 +31,6 @@ const secretKey = config.JWT_SECRET;
 if (!secretKey) {
   process.exit(1);
 }
-
-const userRoutes = require("./routes/users");
-
-app.use("/users", userRoutes);
 
 // Start the server
 app.listen(PORT, () => {});
