@@ -8,9 +8,10 @@ const cors = require("cors");
 const app = express();
 const { PORT = 3001 } = process.env; // get PORT from environment variable
 
-//app.js
+// app.js
 app.use(express.static("public"));
 
+// CORS
 app.use(cors());
 
 // Connect to MongoDB
