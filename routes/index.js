@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const clothingItem = require("./clothingItem");
+const clothingItem = require("./clothingItem.js");
 const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users"); // Add this line
 const auth = require("../middlewares/auth"); // Add this line to import the auth middleware
