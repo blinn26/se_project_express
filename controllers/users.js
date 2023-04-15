@@ -39,7 +39,7 @@ const getUser = (req, res) => {
 };
 
 const createUser = async (req, res) => {
-  const { name, email, password, avatar } = req.body;
+  const { name, email, password, about, avatar } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
@@ -56,6 +56,7 @@ const createUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      about,
       avatar,
     });
 
