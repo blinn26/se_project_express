@@ -42,15 +42,14 @@ const createUser = async (req, res) => {
   const { name, email, password, avatar } = req.body;
 
   try {
-    // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(ERROR_CODES.ALREADY_EXIST)
         .send({ message: "A user with this email already exists." });
     }
 
-    // Hash the password before saving to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -60,14 +59,14 @@ const createUser = async (req, res) => {
       avatar,
     });
 
-    return res.status(ERROR_CODES.OK).send({ data: user });
+    return res.status(ERROR_CODES.CREATED).send({ data: user });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "Invalid data" });
     }
-    if (error.code === 11000) {
+    if (error.code === ERROR_CODES.DUPLICATED_KEY_ERROR) {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
@@ -77,6 +76,8 @@ const createUser = async (req, res) => {
       .send({ message: "Error from createUser" });
   }
 };
+
+module.exports = { createUser };
 
 const login = async (req, res) => {
   const { email, password } = req.body;

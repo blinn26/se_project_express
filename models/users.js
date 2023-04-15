@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false,
   },
+  about: {
+    type: String,
+    required: false,
+    minlength: 2,
+    maxlength: 30,
+  },
   avatar: {
     type: String,
     required: true,
