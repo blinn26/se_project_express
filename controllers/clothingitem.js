@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const ERROR_CODES = require("../utils/errors");
-const ClothingItem = require("../models/clothingitem");
+const ClothingItem = require("../models/clothingItem");
 
 const createItem = async (req, res) => {
   try {
