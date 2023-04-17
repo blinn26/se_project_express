@@ -47,7 +47,7 @@ const createUser = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(ERROR_CODES.OK)
         .send({ message: "A user with this email already exists." });
     }
 
@@ -61,7 +61,8 @@ const createUser = async (req, res) => {
       avatar,
     });
 
-    return res.status(ERROR_CODES.OK).send({ data: user });
+    // Send the user object directly in the response without wrapping it in a 'data' property
+    return res.status(ERROR_CODES.OK).send(user);
   } catch (error) {
     if (error.name === "ValidationError") {
       return res

@@ -4,6 +4,12 @@ const ClothingItem = require("../models/clothingitem");
 
 const createItem = async (req, res) => {
   try {
+    if (!req.user) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "User is missing" });
+    }
+
     const userId = req.user._id;
 
     const { name, weather, imageUrl } = req.body;
