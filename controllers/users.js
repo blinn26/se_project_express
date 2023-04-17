@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
@@ -108,6 +109,7 @@ const login = async (req, res) => {
   }
 };
 
+// eslint-disable-next-line consistent-return
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
