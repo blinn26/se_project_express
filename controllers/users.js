@@ -17,9 +17,9 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  const { _id } = req.params;
+  const { userId } = req.params;
 
-  User.findById(_id)
+  User.findById(userId)
     .then((user) => {
       if (!user) {
         res.status(ERROR_CODES.NOT_FOUND).send({ message: "User not found" });
@@ -39,35 +39,35 @@ const getUser = (req, res) => {
 };
 
 const createUser = async (req, res) => {
-  const { name, email, password, about, avatar } = req.body;
+  const { name, email, password, avatar } = req.body;
 
   try {
+    // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
-
     if (existingUser) {
       return res
-        .status(ERROR_CODES.ALREADY_EXIST)
+        .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
     }
 
+    // Hash the password before saving to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      about,
       avatar,
     });
 
-    return res.status(ERROR_CODES.CREATED).send({ data: user });
+    return res.status(ERROR_CODES.OK).send({ data: user });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "Invalid data" });
     }
-    if (error.code === ERROR_CODES.DUPLICATED_KEY_ERROR) {
+    if (error.code === 11000) {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
@@ -77,8 +77,6 @@ const createUser = async (req, res) => {
       .send({ message: "Error from createUser" });
   }
 };
-
-module.exports = { createUser };
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -100,7 +98,7 @@ const login = async (req, res) => {
         .json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ _id: user._id }, JWT_SECRET);
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     return res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
@@ -112,7 +110,7 @@ const login = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res
@@ -120,18 +118,18 @@ const getCurrentUser = async (req, res) => {
         .send({ message: "User not found" });
     }
 
-    return res.status(ERROR_CODES.OK).send({ data: user });
+    res.status(ERROR_CODES.OK).send({ data: user });
   } catch (err) {
-    return res
+    res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
 };
 
-const updateUser = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "email", "password", "avatar"];
+    const allowedUpdates = ["name", "email", "password", "age"];
     const isValidOperation = updates.every((update) =>
       allowedUpdates.includes(update)
     );
@@ -142,9 +140,9 @@ const updateUser = async (req, res) => {
         .send({ message: "Invalid updates!" });
     }
 
-    const { _id } = req.user;
+    const { userId } = req.user;
 
-    const user = await User.findById(_id);
+    const user = await User.findById(userId);
     if (!user) {
       return res
         .status(ERROR_CODES.NOT_FOUND)
@@ -157,14 +155,14 @@ const updateUser = async (req, res) => {
 
     await user.save({ validateBeforeSave: true });
 
-    return res.send({ data: user });
+    res.send({ data: user });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: error.message });
     }
-    return res
+    res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
@@ -176,5 +174,5 @@ module.exports = {
   getUser,
   createUser,
   login,
-  updateUser,
+  updateProfile,
 };

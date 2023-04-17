@@ -2,21 +2,22 @@ const mongoose = require("mongoose");
 const ERROR_CODES = require("../utils/errors");
 const ClothingItem = require("../models/clothingItem");
 
-const createItem = (req, res) => {
-  const { name, weather, imageUrl } = req.body;
-  const owner = req.user._id;
+const createItem = async (req, res) => {
+  try {
+    const { name, avatar } = req.body;
 
-  const item = new ClothingItem({ name, weather, imageUrl, owner });
+    if (!name || !avatar) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
-  item
-    .validate()
-    .then(() => item.save())
-    .then((savedItem) => {
-      res.status(ERROR_CODES.OK).send({ data: savedItem });
-    })
-    .catch(() => {
-      res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid Input" });
-    });
+    const item = new ClothingItem({ name, avatar });
+    await item.save();
+
+    res.status(201).json(item);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 const getItems = (req, res) => {
@@ -26,7 +27,7 @@ const getItems = (req, res) => {
     })
     .catch(() => {
       res
-        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+        .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "Error from getItems" });
     });
 };

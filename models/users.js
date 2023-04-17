@@ -13,7 +13,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true,
     validate: {
       validator(v) {
         return validator.isEmail(v);
@@ -24,13 +23,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    select: false,
-  },
-  about: {
-    type: String,
-    required: false,
-    minlength: 2,
-    maxlength: 30,
+    select: false, // add the select field
   },
   avatar: {
     type: String,

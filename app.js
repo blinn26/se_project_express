@@ -1,20 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 const router = require("./routes/index");
 const config = require("./utils/config");
 const auth = require("./middlewares/auth");
-const userRoutes = require("./routes/users");
+const login = require("./routes/index");
+const createUser = require("./routes/index");
 
 const app = express();
-
 const { PORT = 3001 } = process.env; // get PORT from environment variable
 
-// app.js
-app.use(express.static("public"));
-
-// CORS
-app.use(cors());
+router.post("/signin", auth, login);
+router.post("/signup", auth, createUser);
 
 // Connect to MongoDB
 mongoose
@@ -25,12 +21,11 @@ mongoose
 // Middleware
 app.use(express.json());
 
-// Apply the auth middleware to the "/users" route
-app.use("/users", auth);
-
 // Load the routes
 app.use("/", router);
-app.use("/users", userRoutes);
+
+// Apply the auth middleware to the "/users" route
+app.use("/users", auth);
 
 // Super Secret Key
 const secretKey = config.JWT_SECRET;
@@ -39,6 +34,10 @@ const secretKey = config.JWT_SECRET;
 if (!secretKey) {
   process.exit(1);
 }
+
+const userRoutes = require("./routes/users");
+
+app.use("/users", userRoutes);
 
 // Start the server
 app.listen(PORT, () => {});
