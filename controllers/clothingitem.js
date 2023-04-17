@@ -1,36 +1,43 @@
 const mongoose = require("mongoose");
 const ERROR_CODES = require("../utils/errors");
-const ClothingItem = require("../models/clothingItem");
+const ClothingItem = require("../models/clothingitem");
 
 const createItem = async (req, res) => {
   try {
-    const { name, avatar } = req.body;
+    const userId = req.user._id;
 
-    if (!name || !avatar) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const { name, weather, imageUrl } = req.body;
+
+    if (!name || !weather || !imageUrl) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Missing required fields" });
     }
 
-    const item = new ClothingItem({ name, avatar });
+    const item = new ClothingItem({ name, weather, imageUrl, owner: userId });
     await item.save();
 
-    res.status(201).json(item);
+    return res.status(ERROR_CODES.CREATED).json(item);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Server error" });
   }
 };
 
 const getItems = (req, res) => {
   ClothingItem.find()
     .then((items) => {
-      res.status(ERROR_CODES.OK).send({ data: items });
+      return res.status(ERROR_CODES.OK).send({ data: items });
     })
     .catch(() => {
-      res
-        .status(ERROR_CODES.BAD_REQUEST)
+      return res
+        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
         .send({ message: "Error from getItems" });
     });
 };
+
 const deleteItem = async (req, res) => {
   try {
     const { itemId } = req.params;
@@ -81,6 +88,7 @@ const likeItem = async (req, res) => {
       .send({ message: "Error from likeItem" });
   }
 };
+
 const dislikeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
