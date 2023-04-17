@@ -7,7 +7,7 @@ const login = require("./routes/index");
 const createUser = require("./routes/index");
 
 const app = express();
-const { PORT = 3001 } = process.env; // get PORT from environment variable
+const { PORT = 3001 } = process.env;
 
 router.post("/signin", auth, login);
 router.post("/signup", auth, createUser);

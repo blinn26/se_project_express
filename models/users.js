@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    select: false, // add the select field
+    select: false,
   },
   avatar: {
     type: String,

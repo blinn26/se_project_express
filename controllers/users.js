@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
@@ -43,7 +42,6 @@ const createUser = async (req, res) => {
   const { name, email, password, avatar } = req.body;
 
   try {
-    // Check if a user with the same email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
@@ -51,7 +49,6 @@ const createUser = async (req, res) => {
         .send({ message: "A user with this email already exists." });
     }
 
-    // Hash the password before saving to the database
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -61,7 +58,6 @@ const createUser = async (req, res) => {
       avatar,
     });
 
-    // Send the user object directly in the response without wrapping it in a 'data' property
     return res.status(ERROR_CODES.OK).send(user);
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -110,7 +106,6 @@ const login = async (req, res) => {
   }
 };
 
-// eslint-disable-next-line consistent-return
 const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
