@@ -25,7 +25,8 @@ const createItem = async (req, res) => {
 
     return res.status(ERROR_CODES.CREATED).json(item);
   } catch (error) {
-    console.error(error);
+    // <-- add error parameter here
+
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Server error" });
