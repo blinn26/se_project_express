@@ -4,40 +4,6 @@ const User = require("../models/users");
 const ERROR_CODES = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const getUsers = (req, res) => {
-  User.find()
-    .then((users) => {
-      res.status(ERROR_CODES.OK).send({ data: users });
-    })
-    .catch(() => {
-      res
-        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: "Error from getUsers" });
-    });
-};
-
-const getUser = (req, res) => {
-  const { userId } = req.params;
-
-  User.findById(userId)
-    .then((user) => {
-      if (!user) {
-        res.status(ERROR_CODES.NOT_FOUND).send({ message: "User not found" });
-      } else {
-        res.status(ERROR_CODES.OK).send({ data: user });
-      }
-    })
-    .catch((error) => {
-      if (error.name === "CastError") {
-        res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid id" });
-      } else {
-        res
-          .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-          .send({ message: "Error from getUser" });
-      }
-    });
-};
-
 const createUser = async (req, res) => {
   const { name, email, password, avatar } = req.body;
 
@@ -45,7 +11,7 @@ const createUser = async (req, res) => {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res
-        .status(ERROR_CODES.OK)
+        .status(ERROR_CODES.ALREADY_EXIST)
         .send({ message: "A user with this email already exists." });
     }
 
@@ -80,11 +46,11 @@ const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }.select({ password }));
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       return res
-        .status(ERROR_CODES.NOT_FOUND)
+        .status(ERROR_CODES.UNAUTHORIZED)
         .json({ message: "User not found" });
     }
 
@@ -92,11 +58,11 @@ const login = async (req, res) => {
 
     if (!passwordMatches) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(ERROR_CODES.UNAUTHORIZED)
         .json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
+    const token = jwt.sign({ userId: req.userId }, JWT_SECRET);
 
     return res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
@@ -117,7 +83,10 @@ const getCurrentUser = async (req, res) => {
     }
 
     res.status(ERROR_CODES.OK).send({ data: user });
-  } catch (err) {
+  } catch (error) {
+    if (error.name === "CastError") {
+      res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid id" });
+    }
     res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
@@ -127,7 +96,7 @@ const getCurrentUser = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
-    const allowedUpdates = ["name", "email", "password", "age"];
+    const allowedUpdates = ["name", "avatar"];
     const isValidOperation = updates.every((update) => {
       return allowedUpdates.includes(update);
     });
@@ -168,8 +137,7 @@ const updateProfile = async (req, res) => {
 
 module.exports = {
   getCurrentUser,
-  getUsers,
-  getUser,
+
   createUser,
   login,
   updateProfile,
