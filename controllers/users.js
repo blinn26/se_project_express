@@ -17,14 +17,18 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const { password, ...user } = await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
       avatar,
     });
 
-    return res.status(ERROR_CODES.OK).send(user);
+    // Destructure the user object, but rename 'password' to 'userPassword'
+    const { password: userPassword, ...userWithoutPassword } = user;
+
+    // Use 'userWithoutPassword' in your response
+    return res.status(ERROR_CODES.CREATED).send(userWithoutPassword);
   } catch (error) {
     if (error.name === "ValidationError") {
       return res

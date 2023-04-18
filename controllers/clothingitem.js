@@ -39,15 +39,14 @@ const getItems = (req, res) => {
         .send({ message: "Error from getItems" });
     });
 };
+
 const deleteItem = async (req, res) => {
   try {
     const { itemId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
-
         .status(ERROR_CODES.BAD_REQUEST)
-
         .send({ message: "Invalid item ID" });
     }
 
@@ -55,29 +54,28 @@ const deleteItem = async (req, res) => {
 
     if (!item) {
       return res
-
         .status(ERROR_CODES.NOT_FOUND)
-
         .send({ message: "Item not found" });
     }
 
     if (String(item.owner) !== String(req.user._id)) {
+      return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
+    } else {
+      return item.deleteItem().then(() => {
+        res.send({ message: "Item deleted" });
+      });
     }
-
-    await ClothingItem.findByIdAndDelete(itemId);
-
-    return res.status(ERROR_CODES.OK).send({ message: "Item deleted" });
   } catch (error) {
     return res
-
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-
       .send({ message: "Error from deleteItem" });
   }
 };
+
 const likeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
+
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
@@ -89,6 +87,7 @@ const likeItem = async (req, res) => {
       { $addToSet: { likes: req.user.userId } },
       { new: true }
     );
+
     if (!item) {
       return res
         .status(ERROR_CODES.NOT_FOUND)
@@ -102,10 +101,10 @@ const likeItem = async (req, res) => {
       .send({ message: "Error from likeItem" });
   }
 };
-
 const dislikeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
+
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
@@ -117,6 +116,7 @@ const dislikeItem = async (req, res) => {
       { $pull: { likes: req.user.userId } },
       { new: true }
     );
+
     if (!item) {
       return res
         .status(ERROR_CODES.NOT_FOUND)
