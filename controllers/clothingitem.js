@@ -4,7 +4,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const createItem = async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user._id;
 
     const { name, weather, imageUrl } = req.body;
 
@@ -59,6 +59,9 @@ const deleteItem = async (req, res) => {
         .status(ERROR_CODES.NOT_FOUND)
 
         .send({ message: "Item not found" });
+    }
+
+    if (String(item.owner) !== String(req.user._id)) {
     }
 
     await ClothingItem.findByIdAndDelete(itemId);

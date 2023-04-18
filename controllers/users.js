@@ -17,7 +17,7 @@ const createUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    const { password, ...user } = await User.create({
       name,
       email,
       password: hashedPassword,
@@ -62,7 +62,9 @@ const login = async (req, res) => {
         .json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: req.userId }, JWT_SECRET);
+    const token = jwt.sign({ userId: req.userId }, JWT_SECRET, {
+      expiresIn: "7 days",
+    });
 
     return res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
@@ -82,12 +84,14 @@ const getCurrentUser = async (req, res) => {
         .send({ message: "User not found" });
     }
 
-    res.status(ERROR_CODES.OK).send({ data: user });
+    return res.status(ERROR_CODES.OK).send({ data: user });
   } catch (error) {
     if (error.name === "CastError") {
-      res.status(ERROR_CODES.BAD_REQUEST).send({ message: "Invalid id" });
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid id" });
     }
-    res
+    return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
@@ -122,14 +126,14 @@ const updateProfile = async (req, res) => {
 
     await user.save({ validateBeforeSave: true });
 
-    res.send({ data: user });
+    return res.send({ data: user });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: error.message });
     }
-    res
+    return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
