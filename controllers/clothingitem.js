@@ -84,7 +84,7 @@ const likeItem = async (req, res) => {
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
-      { $addToSet: { likes: req.user.userId } },
+      { $addToSet: { likes: req.user._id } },
       { new: true }
     );
 
