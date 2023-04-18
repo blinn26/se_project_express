@@ -5,7 +5,14 @@
     "es2021": true
   },
   "extends": ["eslint:recommended", "airbnb-base", "prettier"],
-  "overrides": [],
+  "overrides": [
+    {
+      "files": ["src/**/*.js"],
+      "rules": {
+        "import/no-unresolved": ["error", { "ignore": ["^~"] }]
+      }
+    }
+  ],
   "parserOptions": {
     "ecmaVersion": "latest"
   },
