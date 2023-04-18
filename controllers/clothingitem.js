@@ -4,13 +4,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const createItem = async (req, res) => {
   try {
-    if (!req.user) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .json({ message: "User is missing" });
-    }
-
-    const userId = req.user._id;
+    const userId = req.user.userId;
 
     const { name, weather, imageUrl } = req.body;
 
@@ -25,6 +19,9 @@ const createItem = async (req, res) => {
 
     return res.status(ERROR_CODES.CREATED).json(item);
   } catch (error) {
+    if (error.name === "ValidationError") {
+      /// send the 400 error
+    }
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Server error" });
@@ -42,30 +39,39 @@ const getItems = (req, res) => {
         .send({ message: "Error from getItems" });
     });
 };
-
 const deleteItem = async (req, res) => {
   try {
     const { itemId } = req.params;
+
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
+
         .status(ERROR_CODES.BAD_REQUEST)
+
         .send({ message: "Invalid item ID" });
     }
+
     const item = await ClothingItem.findById(itemId);
+
     if (!item) {
       return res
+
         .status(ERROR_CODES.NOT_FOUND)
+
         .send({ message: "Item not found" });
     }
+
     await ClothingItem.findByIdAndDelete(itemId);
+
     return res.status(ERROR_CODES.OK).send({ message: "Item deleted" });
   } catch (error) {
     return res
+
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+
       .send({ message: "Error from deleteItem" });
   }
 };
-
 const likeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
@@ -77,7 +83,7 @@ const likeItem = async (req, res) => {
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
-      { $addToSet: { likes: req.user._id } },
+      { $addToSet: { likes: req.user.userId } },
       { new: true }
     );
     if (!item) {
@@ -105,7 +111,7 @@ const dislikeItem = async (req, res) => {
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
-      { $pull: { likes: req.user._id } },
+      { $pull: { likes: req.user.userId } },
       { new: true }
     );
     if (!item) {
