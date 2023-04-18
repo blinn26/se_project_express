@@ -60,11 +60,10 @@ const deleteItem = async (req, res) => {
 
     if (String(item.owner) !== String(req.user._id)) {
       return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
-    } else {
-      return item.deleteItem().then(() => {
-        res.send({ message: "Item deleted" });
-      });
     }
+
+    await item.deleteItem();
+    return res.send({ message: "Item deleted" });
   } catch (error) {
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
