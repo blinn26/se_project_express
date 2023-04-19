@@ -4,7 +4,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const createItem = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const { userId } = req.user.userId;
 
     const { name, weather, imageUrl } = req.body;
 
@@ -58,7 +58,7 @@ const deleteItem = async (req, res) => {
         .send({ message: "Item not found" });
     }
 
-    if (String(item.owner) !== String(req.user._id)) {
+    if (String(item.owner) !== String(req.user.userId)) {
       return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
     }
 
@@ -83,7 +83,7 @@ const likeItem = async (req, res) => {
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
-      { $addToSet: { likes: req.user._id } },
+      { $addToSet: { likes: req.user.userId } },
       { new: true }
     );
 

@@ -66,7 +66,7 @@ const login = async (req, res) => {
         .json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: req.user._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "7 days",
     });
 
@@ -80,7 +80,7 @@ const login = async (req, res) => {
 
 const getCurrentUser = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user.userId);
 
     if (!user) {
       return res

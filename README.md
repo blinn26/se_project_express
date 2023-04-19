@@ -5,5 +5,16 @@ The back-end project is focused on creating a server for the WTWR application. Y
 
 `npm run dev` — to launch the server with the hot reload feature
 
+## Postman Testing
+Error Handling Process with API
+Error Codes 200,400,401,403,404,409,500,11000
+
+## Middleware 
+Authentication 
+Token Access 
+
+## EsLint 
+Cleaning inside Terminal 
+
 
 Ben Linn Project 
