@@ -24,10 +24,8 @@ const createUser = async (req, res) => {
       avatar,
     });
 
-    // Destructure the user object, but rename 'password' to 'userPassword'
-    const { password: userPassword, ...userWithoutPassword } = user;
+    const { password: userPassword, ...userWithoutPassword } = user.toObject();
 
-    // Use 'userWithoutPassword' in your response
     return res.status(ERROR_CODES.CREATED).send(userWithoutPassword);
   } catch (error) {
     if (error.name === "ValidationError") {

@@ -4,7 +4,7 @@ const ClothingItem = require("../models/clothingItem");
 
 const createItem = async (req, res) => {
   try {
-    const { userId } = req.user.userId;
+    const { userId } = req.user;
 
     const { name, weather, imageUrl } = req.body;
 
@@ -20,7 +20,9 @@ const createItem = async (req, res) => {
     return res.status(ERROR_CODES.CREATED).json(item);
   } catch (error) {
     if (error.name === "ValidationError") {
-      /// send the 400 error
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .json({ message: "Validation error" });
     }
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
@@ -62,7 +64,7 @@ const deleteItem = async (req, res) => {
       return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
     }
 
-    await item.deleteItem();
+    await ClothingItem.deleteOne({ _id: itemId });
     return res.send({ message: "Item deleted" });
   } catch (error) {
     return res
