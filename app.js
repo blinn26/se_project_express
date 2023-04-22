@@ -19,3 +19,8 @@ app.use("/", router);
 
 // Start the server
 app.listen(PORT, () => {});
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  next();
+});
