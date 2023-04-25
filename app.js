@@ -9,6 +9,11 @@ const { PORT = 3001 } = process.env;
 app.use(cors());
 app.options("*", cors()); // enable requests for all routes
 
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+  next();
+});
+
 // Connect to MongoDB
 mongoose
   .connect("mongodb://localhost:27017/wtwr_db")
@@ -23,8 +28,3 @@ app.use("/", router);
 
 // Start the server
 app.listen(PORT, () => {});
-
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
-  next();
-});
