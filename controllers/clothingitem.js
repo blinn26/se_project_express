@@ -45,6 +45,7 @@ const getItems = (req, res) => {
 const deleteItem = async (req, res) => {
   try {
     const { itemId } = req.params;
+    console.log(itemId);
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
@@ -59,7 +60,8 @@ const deleteItem = async (req, res) => {
         .status(ERROR_CODES.NOT_FOUND)
         .send({ message: "Item not found" });
     }
-
+    console.log(req.user);
+    console.log(item.owner);
     if (String(item.owner) !== String(req.user.userId)) {
       return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
     }
