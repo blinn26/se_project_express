@@ -84,6 +84,12 @@ const likeItem = async (req, res) => {
     const { itemId } = req.params;
     const { userId } = req.user;
 
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid item ID" });
+    }
+
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
       { $addToSet: { likes: userId } },
@@ -111,6 +117,12 @@ const dislikeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
     const { userId } = req.user;
+
+    if (!mongoose.Types.ObjectId.isValid(itemId)) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid item ID" });
+    }
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
