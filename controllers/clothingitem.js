@@ -30,16 +30,23 @@ const createItem = async (req, res) => {
   }
 };
 
-const getItems = (req, res) => {
-  ClothingItem.find()
-    .then((items) => {
-      return res.status(ERROR_CODES.OK).send({ data: items });
-    })
-    .catch(() => {
-      return res
-        .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-        .send({ message: "Error from getItems" });
+const getItems = async (req, res) => {
+  try {
+    const { userId } = req.user;
+
+    const items = await ClothingItem.find();
+
+    const itemsWithIsLiked = items.map((item) => {
+      const isLiked = item.likes.includes(userId);
+      return { ...item.toObject(), isLiked };
     });
+
+    return res.status(ERROR_CODES.OK).send({ data: itemsWithIsLiked });
+  } catch (error) {
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Error from getItems" });
+  }
 };
 
 const deleteItem = async (req, res) => {
@@ -72,20 +79,14 @@ const deleteItem = async (req, res) => {
       .send({ message: "Error from deleteItem" });
   }
 };
-
 const likeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid item ID" });
-    }
+    const { userId } = req.user;
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
-      { $addToSet: { likes: req.user.userId } },
+      { $addToSet: { likes: userId } },
       { new: true }
     );
 
@@ -95,26 +96,25 @@ const likeItem = async (req, res) => {
         .send({ message: "Item not found" });
     }
 
-    return res.status(ERROR_CODES.OK).send({ data: item });
+    const isLiked = item.likes.includes(userId);
+    return res
+      .status(ERROR_CODES.OK)
+      .send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from likeItem" });
   }
 };
+
 const dislikeItem = async (req, res) => {
   try {
     const { itemId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid item ID" });
-    }
+    const { userId } = req.user;
 
     const item = await ClothingItem.findByIdAndUpdate(
       itemId,
-      { $pull: { likes: req.user.userId } },
+      { $pull: { likes: userId } },
       { new: true }
     );
 
@@ -124,7 +124,10 @@ const dislikeItem = async (req, res) => {
         .send({ message: "Item not found" });
     }
 
-    return res.status(ERROR_CODES.OK).send({ data: item });
+    const isLiked = item.likes.includes(userId);
+    return res
+      .status(ERROR_CODES.OK)
+      .send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
