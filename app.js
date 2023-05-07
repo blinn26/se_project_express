@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const router = require("./routes/index");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -20,7 +21,9 @@ mongoose
   .catch(() => {});
 
 app.use(express.json());
-
 app.use("/", router);
+
+app.use(requestLogger);
+app.use(errorLogger);
 
 app.listen(PORT, () => {});
