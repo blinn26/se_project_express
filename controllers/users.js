@@ -5,10 +5,12 @@ const ERROR_CODES = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = async (req, res) => {
+  console.log("create user hi");
   const { name, email, password, avatar } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
+    console.log("existing user hi 2 2 2 ");
     if (existingUser) {
       console.log("existing user");
       return res
