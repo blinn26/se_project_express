@@ -11,7 +11,6 @@ const { PORT = 3001 } = process.env;
 app.use(cors());
 app.options("*", cors());
 
-app.use(errorHandler);
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   next();
@@ -26,7 +25,10 @@ app.use(express.json());
 app.use("/", router);
 
 app.use(requestLogger);
+
 app.use(errorLogger);
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
