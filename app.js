@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const router = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -10,6 +11,7 @@ const { PORT = 3001 } = process.env;
 app.use(cors());
 app.options("*", cors());
 
+app.use(errorHandler);
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
   next();
