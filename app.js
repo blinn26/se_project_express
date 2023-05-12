@@ -9,7 +9,8 @@ const errorHandler = require("./middlewares/errorHandler");
 const app = express();
 const { PORT = 3001 } = process.env;
 
-app.use(cors());
+// Enable CORS
+app.use(cors({ origin: "https://www.wtwr.crabdance.com" }));
 
 mongoose
   .connect("mongodb://localhost:27017/wtwr_db")
