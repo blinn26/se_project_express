@@ -21,11 +21,11 @@ Error Codes 200,400,401,403,404,409,500,11000
 
 ## Ben Linn Project 15
 
-- [Frontend] (wtwr.crabdance.com)
+[Frontend](https://wtwr.crabdance.com)
 
-- [Frontend Alt] (www.wtwr.crabdance.com)
+[Frontend Alt](https://www.wtwr.crabdance.com)
 
-- [Backend Api] (api.crabdance.com)
+[Backend Api](https://api.crabdance.com)
 
 ## BACK END Configuration
 
