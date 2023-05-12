@@ -5,14 +5,11 @@ const ERROR_CODES = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
 const createUser = async (req, res) => {
-  console.log("create user hi");
   const { name, email, password, avatar } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
-    console.log("existing user hi 2 2 2 ");
     if (existingUser) {
-      console.log("existing user");
       return res
         .status(ERROR_CODES.ALREADY_EXIST)
         .send({ message: "A user with this email already exists." });
@@ -28,23 +25,18 @@ const createUser = async (req, res) => {
     });
 
     const { password: userPassword, ...userWithoutPassword } = user.toObject();
-    console.log("userWithoutPassword");
     return res.status(ERROR_CODES.CREATED).send(userWithoutPassword);
   } catch (error) {
-    console.log(error);
     if (error.name === "ValidationError") {
-      console.log("invalid data");
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "Invalid data" });
     }
     if (error.code === 11000) {
-      console.log("duplicate email");
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
     }
-    console.log("create user error");
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from createUser" });
