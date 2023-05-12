@@ -21,6 +21,12 @@ Error Codes 200,400,401,403,404,409,500,11000
 
 ## Ben Linn Project 15
 
+- [Frontend] (wtwr.crabdance.com)
+
+- [Frontend Alt] (www.wtwr.crabdance.com)
+
+- [Backend Api] (api.crabdance.com)
+
 ## BACK END Configuration
 
 This Project taught me the most out of any project thus far. Being inside multiple terminals, such as VM for Google Cloud Services, the terminal for my main machine and last but not least the terminal for VS code. Having to run Node.js, MongoDB, Celebrate , Nginx, PM2, Winston and Cors in these and make sure they are all on same versions then up to date with each other and no errors or warnings.
