@@ -34,6 +34,11 @@ mongoose
   .then(() => {})
   .catch(() => {});
 
+app.use((req, res, next) => {
+  console.log(req.url);
+  next();
+});
+
 app.use(express.json());
 
 app.get("/crash-test", () => {
