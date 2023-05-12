@@ -29,7 +29,7 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
-app.use("/", router);
+app.use("/api", router);
 
 app.use(requestLogger);
 
