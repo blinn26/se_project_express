@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 });
 
 mongoose
-  .connect("mongodb://localhost:27017/wtwr_db")
+  .connect("mongodb://35.233.248.248:27017/wtwr_db")
   .then(() => {})
   .catch(() => {});
 
