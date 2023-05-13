@@ -9,8 +9,25 @@ const errorHandler = require("./middlewares/errorHandler");
 const app = express();
 const { PORT = 3001 } = process.env;
 
-// Enable CORS
-app.use(cors({ origin: "https://www.wtwr.crabdance.com" }));
+app.use(cors());
+app.options("*", cors());
+
+app.use((req, res, next) => {
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://wtwr.crabdance.com",
+  ];
+  const { origin } = req.headers;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  next();
+});
 
 mongoose
   .connect("mongodb://localhost:27017/wtwr_db")
