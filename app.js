@@ -15,7 +15,7 @@ app.options("*", cors());
 app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:3000",
-    "https://wtwr.crabdance.com",
+    "https://api.wtwr.crabdance.com",
   ];
   const { origin } = req.headers;
   if (allowedOrigins.includes(origin)) {
@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 });
 
 mongoose
-  .connect("mongodb://localhost:27017/wtwr_db")
+  .connect("mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {})
   .catch(() => {});
 
