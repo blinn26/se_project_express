@@ -15,7 +15,7 @@ app.options("*", cors());
 app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:3000",
-    "https://wtwr.crabdance.com",
+    "https://wtwr.crabdance.com/api",
   ];
   const { origin } = req.headers;
   if (allowedOrigins.includes(origin)) {
@@ -47,7 +47,7 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
-app.use("/", router);
+app.use("/api", router);
 
 app.use(requestLogger);
 
