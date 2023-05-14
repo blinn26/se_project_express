@@ -1,93 +1,88 @@
 const mongoose = require("mongoose");
 const ERROR_CODES = require("../utils/apiErrors");
 const ClothingItem = require("../models/clothingItem");
+const {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+  ForbiddenError,
+} = require("../utils/apiErrors");
 
-const createItem = async (req, res) => {
+const createItem = async (req, res, next) => {
   try {
     const { userId } = req.user;
-
     const { name, weather, imageUrl } = req.body;
 
     if (!name || !weather || !imageUrl) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .json({ message: "Missing required fields" });
+      next(new BadRequestError("Missing required fields"));
+      return;
     }
 
     const item = new ClothingItem({ name, weather, imageUrl, owner: userId });
     await item.save();
 
-    return res.status(ERROR_CODES.CREATED).json(item);
+    res.status(ERROR_CODES.CREATED).json(item);
   } catch (error) {
     if (error.name === "ValidationError") {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .json({ message: "Validation error" });
+      next(new BadRequestError("Validation error"));
+    } else {
+      next(new InternalServerError("Server error"));
     }
-    return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-      .json({ message: "Server error" });
   }
 };
 
-const getItems = async (req, res) => {
+const getItems = async (req, res, next) => {
   try {
     const { userId } = req.user;
 
     const items = await ClothingItem.find();
-
     const itemsWithIsLiked = items.map((item) => {
       const isLiked = item.likes.includes(userId);
       return { ...item.toObject(), isLiked };
     });
 
-    return res.status(ERROR_CODES.OK).send({ data: itemsWithIsLiked });
+    res.status(ERROR_CODES.OK).json({ data: itemsWithIsLiked });
   } catch (error) {
-    return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-      .send({ message: "Error from getItems" });
+    next(new InternalServerError("Error from getItems"));
   }
 };
 
-const deleteItem = async (req, res) => {
+const deleteItem = async (req, res, next) => {
   try {
     const { itemId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid item ID" });
+      next(new BadRequestError("Invalid item ID"));
+      return;
     }
 
     const item = await ClothingItem.findById(itemId);
 
     if (!item) {
-      return res
-        .status(ERROR_CODES.NOT_FOUND)
-        .send({ message: "Item not found" });
+      next(new NotFoundError("Item not found"));
+      return;
     }
 
     if (String(item.owner) !== String(req.user.userId)) {
-      return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
+      next(new ForbiddenError());
+      return;
     }
 
     await ClothingItem.deleteOne({ _id: itemId });
-    return res.send({ message: "Item deleted" });
+    res.json({ message: "Item deleted" });
   } catch (error) {
-    return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-      .send({ message: "Error from deleteItem" });
+    next(new InternalServerError("Error from deleteItem"));
   }
 };
-const likeItem = async (req, res) => {
+
+const likeItem = async (req, res, next) => {
   try {
     const { itemId } = req.params;
     const { userId } = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid item ID" });
+      next(new BadRequestError("Invalid item ID"));
+      return;
     }
 
     const item = await ClothingItem.findByIdAndUpdate(
@@ -97,31 +92,25 @@ const likeItem = async (req, res) => {
     );
 
     if (!item) {
-      return res
-        .status(ERROR_CODES.NOT_FOUND)
-        .send({ message: "Item not found" });
+      next(new NotFoundError("Item not found"));
+      return;
     }
 
     const isLiked = item.likes.includes(userId);
-    return res
-      .status(ERROR_CODES.OK)
-      .send({ data: { ...item.toObject(), isLiked } });
+    res.status(ERROR_CODES.OK).json({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
-    return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-      .send({ message: "Error from likeItem" });
+    next(new InternalServerError("Error from likeItem"));
   }
 };
 
-const dislikeItem = async (req, res) => {
+const dislikeItem = async (req, res, next) => {
   try {
     const { itemId } = req.params;
     const { userId } = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid item ID" });
+      next(new BadRequestError("Invalid item ID"));
+      return;
     }
 
     const item = await ClothingItem.findByIdAndUpdate(
@@ -131,19 +120,14 @@ const dislikeItem = async (req, res) => {
     );
 
     if (!item) {
-      return res
-        .status(ERROR_CODES.NOT_FOUND)
-        .send({ message: "Item not found" });
+      next(new NotFoundError("Item not found"));
+      return;
     }
 
     const isLiked = item.likes.includes(userId);
-    return res
-      .status(ERROR_CODES.OK)
-      .send({ data: { ...item.toObject(), isLiked } });
+    res.status(ERROR_CODES.OK).json({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
-    return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-      .send({ message: "Error from dislikeItem" });
+    next(new InternalServerError("Error from dislikeItem"));
   }
 };
 

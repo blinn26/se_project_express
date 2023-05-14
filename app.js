@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const router = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-const errorHandler = require("./middlewares/errorHandler").default;
+const { ApiError } = require("./utils/apiErrors");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -46,7 +46,11 @@ app.use(errorLogger);
 
 // Error handler middleware
 app.use((err, req, res, next) => {
-  errorHandler(err, req, res, next);
+  if (err instanceof ApiError) {
+    res.status(err.statusCode).json({ message: err.message });
+  } else {
+    res.status(500).json({ message: "Unknown error" });
+  }
 });
 
 app.listen(PORT, () => {
