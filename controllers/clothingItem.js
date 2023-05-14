@@ -11,6 +11,7 @@ const {
 const createItem = async (req, res, next) => {
   try {
     const { userId } = req.user;
+    console.log(req.user, { userId });
     const { name, weather, imageUrl } = req.body;
 
     if (!name || !weather || !imageUrl) {
