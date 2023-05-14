@@ -4,7 +4,7 @@ const clothingItem = require("./clothingItem.js");
 const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
-const ERROR_CODES = require("../utils/errors");
+const ERROR_CODES = require("../utils/apiErrors.js");
 
 router.post("/signin", login);
 router.post("/signup", createUser);
