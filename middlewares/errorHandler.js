@@ -1,12 +1,11 @@
-const ERROR_CODES = require("../utils/errors");
-
-const errorHandler = (err, req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.error(err.stack);
-  res.status(ERROR_CODES.INTERNAL_SERVER_ERROR).json({
-    message: "Something broke!",
+const errorHandler = (err, req, res, _next) => {
+  // Log the error and send a generic response to the user.
+  console.error(err);
+  return res.status(500).json({
+    status: "error",
+    statusCode: 500,
+    message: "Internal Server Error",
   });
-  next();
 };
 
 module.exports = errorHandler;

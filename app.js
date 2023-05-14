@@ -4,39 +4,29 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const router = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-const errorHandler = require("./middlewares/errorHandler");
+const errorHandler = require("./middlewares/errorHandler").default;
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
-app.use(cors());
-app.options("*", cors());
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://api.wtwr.crabdance.com"],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  credentials: true,
+};
 
-app.use((req, res, next) => {
-  const allowedOrigins = [
-    "http://localhost:3000",
-    "https://api.wtwr.crabdance.com",
-  ];
-  const { origin } = req.headers;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
-  next();
-});
+app.use(cors(corsOptions));
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {})
-  .catch(() => {});
-
-app.use((req, res, next) => {
-  next();
-});
+  .then(() => {
+    console.log("Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("Failed to connect to MongoDB", err);
+  });
 
 app.use(express.json());
 
@@ -46,13 +36,14 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
-app.use("/", router);
-
 app.use(requestLogger);
-
+app.use("/", router);
 app.use(errorLogger);
 
-app.use(errorHandler);
+// Error handler middleware
+app.use((err, req, res, next) => {
+  errorHandler(err, req, res, next);
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
