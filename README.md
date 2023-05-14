@@ -1,12 +1,18 @@
 # WTWR (What to Wear?): Back End
 
-The back-end project is focused on creating a server for the WTWR application. You’ll gain a deeper understanding of how to work with databases, set up security and testing, and deploy web applications on a remote machine. The eventual goal is to create a server with an API and user authorization.
+## Ben Linn Project 15
+
+## [ Frontend ] (https://wtwr.crabdance.com)
+
+## [Frontend Alt] (https://www.wtwr.crabdance.com)
+
+## [ Backend ] (https://api.wtwr.crabdance.com)
 
 ## Running the Project
 
-`npm run start` — to launch the server
+`npm run start` — to launch the server on http://localhost:3000/
 
-`npm run dev` — to launch the server with the hot reload feature
+`npm run dev` — to launch the server with the hot reload feature for development backend on local machine
 
 ## Postman Testing
 
@@ -15,17 +21,11 @@ Error Codes 200,400,401,403,404,409,500,11000
 
 ## Middleware
 
+Authentication , Error Handling, Logging and Validations. Middlewares is the area where this is done.
+
 ## EsLint
 
-## Tieing in Front to Back End
-
-## Ben Linn Project 15
-
-[Frontend](https://wtwr.crabdance.com)
-
-[Frontend Alt](https://www.wtwr.crabdance.com)
-
-[Backend Api](https://api.crabdance.com)
+Eslint is an area I personally like to use, its a area of disabling and creating to me. Its a rules section set by the developer.
 
 ## BACK END Configuration
 
