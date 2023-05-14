@@ -1,17 +1,22 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
+const ERROR_CODES = require("../utils/errors");
 const { JWT_SECRET } = require("../utils/config");
 
-const createUser = async (req, res, next) => {
+const createUser = async (req, res) => {
   const { name, email, password, avatar } = req.body;
+
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return next(new Error("A user with this email already exists."));
+      return res
+        .status(ERROR_CODES.ALREADY_EXIST)
+        .send({ message: "A user with this email already exists." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
       name,
       email,
@@ -19,51 +24,82 @@ const createUser = async (req, res, next) => {
       avatar,
     });
 
-    const userObject = user.toObject();
-    delete userObject.password;
-    return res.status(201).send(userObject);
+    // eslint-disable-next-line no-unused-vars
+    const { password: userPassword, ...userWithoutPassword } = user.toObject();
+    return res.status(ERROR_CODES.CREATED).send(userWithoutPassword);
   } catch (error) {
-    return next(error);
+    if (error.name === "ValidationError") {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid data" });
+    }
+    if (error.code === 11000) {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "A user with this email already exists." });
+    }
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Error from createUser" });
   }
 };
 
-const login = async (req, res, next) => {
+const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await User.findOne({ email }).select("+password");
+
     if (!user) {
-      return next(new Error("User not found"));
+      return res
+        .status(ERROR_CODES.UNAUTHORIZED)
+        .json({ message: "User not found" });
     }
 
     const passwordMatches = await bcrypt.compare(password, user.password);
+
     if (!passwordMatches) {
-      return next(new Error("Invalid credentials"));
+      return res
+        .status(ERROR_CODES.UNAUTHORIZED)
+        .json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "7 days",
     });
 
-    return res.status(200).json({ token });
+    return res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
-    return next(error);
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .json({ message: "Internal server error" });
   }
 };
 
-const getCurrentUser = async (req, res, next) => {
+const getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
+
     if (!user) {
-      return next(new Error("User not found"));
+      return res
+        .status(ERROR_CODES.NOT_FOUND)
+        .send({ message: "User not found" });
     }
 
-    return res.status(200).send({ data: user });
+    return res.status(ERROR_CODES.OK).send({ data: user });
   } catch (error) {
-    return next(error);
+    if (error.name === "CastError") {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid id" });
+    }
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Internal server error" });
   }
 };
 
-const updateProfile = async (req, res, next) => {
+const updateProfile = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["name", "avatar"];
@@ -72,13 +108,18 @@ const updateProfile = async (req, res, next) => {
     });
 
     if (!isValidOperation) {
-      return next(new Error("Invalid updates!"));
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: "Invalid updates!" });
     }
 
     const { userId } = req.user;
+
     const user = await User.findById(userId);
     if (!user) {
-      return next(new Error("User not found"));
+      return res
+        .status(ERROR_CODES.NOT_FOUND)
+        .send({ message: "User not found" });
     }
 
     updates.forEach((update) => {
@@ -89,7 +130,14 @@ const updateProfile = async (req, res, next) => {
 
     return res.send({ data: user });
   } catch (error) {
-    return next(error);
+    if (error.name === "ValidationError") {
+      return res
+        .status(ERROR_CODES.BAD_REQUEST)
+        .send({ message: error.message });
+    }
+    return res
+      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .send({ message: "Internal server error" });
   }
 };
 
