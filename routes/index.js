@@ -12,7 +12,7 @@ router.post("/signup", createUser);
 router.use("/items", clothingItem);
 router.use("/users", auth, userRouter);
 
-router.use((_req, res) => {
+router.use((req, res) => {
   res.status(ERROR_CODES.NOT_FOUND).send({ message: "Router Not found" });
 });
 

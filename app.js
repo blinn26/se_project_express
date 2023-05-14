@@ -10,7 +10,11 @@ const app = express();
 const { PORT = 3001 } = process.env;
 
 const corsOptions = {
-  origin: ["http://localhost:3000", "https://api.wtwr.crabdance.com"],
+  origin: [
+    "http://localhost:3000",
+    "https://api.wtwr.crabdance.com",
+    "https://wtwr.crabdance.com",
+  ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
   optionsSuccessStatus: 204,
