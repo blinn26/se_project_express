@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ERROR_CODES = require("../utils/apiErrors");
+const { ERROR_CODES } = require("../utils/apiErrors");
 const ClothingItem = require("../models/clothingItem");
 const {
   BadRequestError,
@@ -38,9 +38,10 @@ const getItems = async (req, res, next) => {
     console.log(req.user, { userId });
 
     const items = await ClothingItem.find();
+    console.log(items);
     const itemsWithIsLiked = items.map((item) => {
       const isLiked = item.likes.includes(userId);
-      return { ...item.toObject(), isLiked };
+      return { ...items.toObject(), isLiked };
     });
 
     res.status(ERROR_CODES.OK).json({ data: itemsWithIsLiked });
