@@ -1,4 +1,5 @@
-const { Joi, celebrate } = require("celebrate");
+const { Joi, celebrate, Segments } = require("celebrate");
+
 const validator = require("validator");
 
 const validateURL = (value, helpers) => {
@@ -42,8 +43,8 @@ const validateAuth = celebrate({
 });
 
 const validateId = celebrate({
-  params: Joi.object().keys({
-    id: Joi.string().length(24).hex(),
+  [Segments.PARAMS]: Joi.object().keys({
+    itemId: Joi.string().alphanum().length(24).required(),
   }),
 });
 
