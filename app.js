@@ -4,33 +4,40 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const router = require("./routes/index");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
-const { ApiError } = require("./utils/apiErrors");
+const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 const { PORT = 3001 } = process.env;
 
-const corsOptions = {
-  origin: [
+app.use(cors());
+app.options("*", cors());
+
+app.use((req, res, next) => {
+  const allowedOrigins = [
     "http://localhost:3000",
     "https://api.wtwr.crabdance.com",
-    "https://wtwr.crabdance.com",
-  ],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+  ];
+  const { origin } = req.headers;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+  next();
+});
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {
-    console.log("Connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("Failed to connect to MongoDB", err);
-  });
+  .then(() => {})
+  .catch(() => {});
+
+app.use((req, res, next) => {
+  console.log(req.url);
+  next();
+});
 
 app.use(express.json());
 
@@ -40,18 +47,13 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
-app.use(requestLogger);
 app.use("/", router);
+
+app.use(requestLogger);
+
 app.use(errorLogger);
 
-// Error handler middleware
-app.use((err, req, res, next) => {
-  if (err instanceof ApiError) {
-    res.status(err.statusCode).json({ message: err.message });
-  } else {
-    res.status(500).json({ message: "Unknown error" });
-  }
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
