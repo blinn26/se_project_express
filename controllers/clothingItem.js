@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ERROR_CODES = require("../utils/httpErrors");
+const { HTTP_ERRORS } = require("../utils/httpErrors");
 const ClothingItem = require("../models/clothingItem");
 
 const createItem = async (req, res) => {
@@ -10,22 +10,22 @@ const createItem = async (req, res) => {
 
     if (!name || !weather || !imageUrl) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(HTTP_ERRORS.BAD_REQUEST)
         .json({ message: "Missing required fields" });
     }
 
     const item = new ClothingItem({ name, weather, imageUrl, owner: userId });
     await item.save();
 
-    return res.status(ERROR_CODES.CREATED).json(item);
+    return res.status(HTTP_ERRORS.CREATED).json(item);
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(HTTP_ERRORS.BAD_REQUEST)
         .json({ message: "Validation error" });
     }
     return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .json({ message: "Server error" });
   }
 };
@@ -41,10 +41,10 @@ const getItems = async (req, res) => {
       return { ...item.toObject(), isLiked };
     });
 
-    return res.status(ERROR_CODES.OK).send({ data: itemsWithIsLiked });
+    return res.status(HTTP_ERRORS.OK).send({ data: itemsWithIsLiked });
   } catch (error) {
     return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from getItems" });
   }
 };
@@ -55,7 +55,7 @@ const deleteItem = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(HTTP_ERRORS.BAD_REQUEST)
         .send({ message: "Invalid item ID" });
     }
 
@@ -63,19 +63,19 @@ const deleteItem = async (req, res) => {
 
     if (!item) {
       return res
-        .status(ERROR_CODES.NOT_FOUND)
+        .status(HTTP_ERRORS.NOT_FOUND)
         .send({ message: "Item not found" });
     }
 
     if (String(item.owner) !== String(req.user.userId)) {
-      return res.status(ERROR_CODES.FORBIDDEN).send({ message: "Forbidden" });
+      return res.status(HTTP_ERRORS.FORBIDDEN).send({ message: "Forbidden" });
     }
 
     await ClothingItem.deleteOne({ _id: itemId });
     return res.send({ message: "Item deleted" });
   } catch (error) {
     return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from deleteItem" });
   }
 };
@@ -86,7 +86,7 @@ const likeItem = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(HTTP_ERRORS.BAD_REQUEST)
         .send({ message: "Invalid item ID" });
     }
 
@@ -98,17 +98,17 @@ const likeItem = async (req, res) => {
 
     if (!item) {
       return res
-        .status(ERROR_CODES.NOT_FOUND)
+        .status(HTTP_ERRORS.NOT_FOUND)
         .send({ message: "Item not found" });
     }
 
     const isLiked = item.likes.includes(userId);
     return res
-      .status(ERROR_CODES.OK)
+      .status(HTTP_ERRORS.OK)
       .send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from likeItem" });
   }
 };
@@ -120,7 +120,7 @@ const dislikeItem = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
       return res
-        .status(ERROR_CODES.BAD_REQUEST)
+        .status(HTTP_ERRORS.BAD_REQUEST)
         .send({ message: "Invalid item ID" });
     }
 
@@ -132,17 +132,17 @@ const dislikeItem = async (req, res) => {
 
     if (!item) {
       return res
-        .status(ERROR_CODES.NOT_FOUND)
+        .status(HTTP_ERRORS.NOT_FOUND)
         .send({ message: "Item not found" });
     }
 
     const isLiked = item.likes.includes(userId);
     return res
-      .status(ERROR_CODES.OK)
+      .status(HTTP_ERRORS.OK)
       .send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     return res
-      .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
+      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
       .send({ message: "Error from dislikeItem" });
   }
 };

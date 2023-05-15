@@ -1,4 +1,4 @@
-const ERROR_CODES = {
+const HTTP_ERRORS = {
   OK: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
@@ -11,5 +11,5 @@ const ERROR_CODES = {
 };
 
 module.exports = {
-  ERROR_CODES,
+  HTTP_ERRORS,
 };
