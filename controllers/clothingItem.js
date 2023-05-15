@@ -1,5 +1,5 @@
+/* eslint-disable consistent-return */
 const mongoose = require("mongoose");
-const { ERROR_CODES } = require("../utils/apiErrors");
 const ClothingItem = require("../models/clothingItem");
 const {
   BadRequestError,
@@ -11,40 +11,33 @@ const {
 const createItem = async (req, res, next) => {
   try {
     const { userId } = req.user;
-
     const { name, weather, imageUrl } = req.body;
 
     if (!name || !weather || !imageUrl) {
-      next(new BadRequestError("Missing required fields"));
-      return;
+      throw new BadRequestError("Missing required fields");
     }
 
     const item = new ClothingItem({ name, weather, imageUrl, owner: userId });
     await item.save();
 
-    res.status(ERROR_CODES.CREATED).json(item);
+    return res.status(201).json(item);
   } catch (error) {
-    if (error.name === "ValidationError") {
-      next(new BadRequestError("Validation error"));
-    } else {
-      next(new InternalServerError("Server error"));
-    }
+    next(error);
   }
 };
 
 const getItems = async (req, res, next) => {
   try {
     const { userId } = req.user;
-    console.log(req.user, { userId });
 
     const items = await ClothingItem.find();
-    console.log(items);
+
     const itemsWithIsLiked = items.map((item) => {
       const isLiked = item.likes.includes(userId);
-      return { ...items.toObject(), isLiked };
+      return { ...item.toObject(), isLiked };
     });
 
-    res.status(ERROR_CODES.OK).json({ data: itemsWithIsLiked });
+    return res.status(200).send({ data: itemsWithIsLiked });
   } catch (error) {
     next(new InternalServerError("Error from getItems"));
   }
@@ -55,26 +48,23 @@ const deleteItem = async (req, res, next) => {
     const { itemId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      next(new BadRequestError("Invalid item ID"));
-      return;
+      throw new BadRequestError("Invalid item ID");
     }
 
     const item = await ClothingItem.findById(itemId);
 
     if (!item) {
-      next(new NotFoundError("Item not found"));
-      return;
+      throw new NotFoundError("Item not found");
     }
 
     if (String(item.owner) !== String(req.user.userId)) {
-      next(new ForbiddenError());
-      return;
+      throw new ForbiddenError();
     }
 
     await ClothingItem.deleteOne({ _id: itemId });
-    res.json({ message: "Item deleted" });
+    return res.send({ message: "Item deleted" });
   } catch (error) {
-    next(new InternalServerError("Error from deleteItem"));
+    next(error);
   }
 };
 
@@ -84,8 +74,7 @@ const likeItem = async (req, res, next) => {
     const { userId } = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      next(new BadRequestError("Invalid item ID"));
-      return;
+      throw new BadRequestError("Invalid item ID");
     }
 
     const item = await ClothingItem.findByIdAndUpdate(
@@ -95,12 +84,11 @@ const likeItem = async (req, res, next) => {
     );
 
     if (!item) {
-      next(new NotFoundError("Item not found"));
-      return;
+      throw new NotFoundError("Item not found");
     }
 
     const isLiked = item.likes.includes(userId);
-    res.status(ERROR_CODES.OK).json({ data: { ...item.toObject(), isLiked } });
+    return res.status(200).send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     next(new InternalServerError("Error from likeItem"));
   }
@@ -112,8 +100,7 @@ const dislikeItem = async (req, res, next) => {
     const { userId } = req.user;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      next(new BadRequestError("Invalid item ID"));
-      return;
+      throw new BadRequestError("Invalid item ID");
     }
 
     const item = await ClothingItem.findByIdAndUpdate(
@@ -123,12 +110,11 @@ const dislikeItem = async (req, res, next) => {
     );
 
     if (!item) {
-      next(new NotFoundError("Item not found"));
-      return;
+      throw new NotFoundError("Item not found");
     }
 
     const isLiked = item.likes.includes(userId);
-    res.status(ERROR_CODES.OK).json({ data: { ...item.toObject(), isLiked } });
+    return res.status(200).send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     next(new InternalServerError("Error from dislikeItem"));
   }
