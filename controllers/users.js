@@ -24,15 +24,16 @@ const createUser = async (req, res) => {
       avatar,
     });
 
-    const { password: userWithoutPassword } = user.toObject();
-    return res.status(ERROR_CODES.CREATED).send(userWithoutPassword);
+    const userObject = user.toObject();
+    delete userObject.password;
+    return res.status(ERROR_CODES.CREATED).send(userObject);
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "Invalid data" });
     }
-    if (error.code === 11000) {
+    if (error.code === ERROR_CODES.DUPLICATED_KEY_ERROR) {
       return res
         .status(ERROR_CODES.BAD_REQUEST)
         .send({ message: "A user with this email already exists." });
