@@ -18,7 +18,7 @@ const createUser = async (req, res, next) => {
     if (existingUser) {
       throw new ConflictError("A user with this email already exists.");
     }
-    console.log(existingUser);
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -31,7 +31,6 @@ const createUser = async (req, res, next) => {
     const userWithoutPassword = { ...user.toObject(), password: undefined };
     return res.status(201).send(userWithoutPassword);
   } catch (error) {
-    console.log(error(99999));
     return next(error);
   }
 };
@@ -58,7 +57,6 @@ const login = async (req, res, next) => {
 
     return res.status(200).json({ token });
   } catch (error) {
-    console.log(error(1212121));
     return next(error);
   }
 };
@@ -73,7 +71,6 @@ const getCurrentUser = async (req, res, next) => {
 
     return res.status(200).send({ data: user });
   } catch (error) {
-    console.log(error(12121216));
     return next(error);
   }
 };
@@ -105,7 +102,6 @@ const updateProfile = async (req, res, next) => {
 
     return res.send({ data: user });
   } catch (error) {
-    console.log(error(1342432342342216));
     return next(new InternalServerError("An unexpected error occurred"));
   }
 };
