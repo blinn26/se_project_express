@@ -22,6 +22,7 @@ const createItem = async (req, res, next) => {
 
     return res.status(201).json(item);
   } catch (error) {
+    console.log(error(11111));
     next(error);
   }
 };
@@ -40,6 +41,7 @@ const getItems = async (req, res, next) => {
     return res.status(200).send({ data: itemsWithIsLiked });
   } catch (error) {
     next(new InternalServerError("Error from getItems"));
+    console.log(error(22222));
   }
 };
 
@@ -64,6 +66,7 @@ const deleteItem = async (req, res, next) => {
     await ClothingItem.deleteOne({ _id: itemId });
     return res.send({ message: "Item deleted" });
   } catch (error) {
+    console.log(error(33333));
     next(error);
   }
 };
@@ -91,6 +94,7 @@ const likeItem = async (req, res, next) => {
     return res.status(200).send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     next(new InternalServerError("Error from likeItem"));
+    console.log(error(44444));
   }
 };
 
@@ -117,6 +121,7 @@ const dislikeItem = async (req, res, next) => {
     return res.status(200).send({ data: { ...item.toObject(), isLiked } });
   } catch (error) {
     next(new InternalServerError("Error from dislikeItem"));
+    console.log(error(55555));
   }
 };
 
