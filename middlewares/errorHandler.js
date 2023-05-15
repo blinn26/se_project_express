@@ -1,4 +1,4 @@
-const errorHandler = (err, req, res, _next) => {
+const errorHandler = (err, req, res, next) => {
   // Log the error and send a generic response to the user.
   console.error(err);
   return res.status(500).json({
