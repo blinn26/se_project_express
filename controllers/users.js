@@ -28,19 +28,10 @@ const createUser = async (req, res) => {
     delete userObject.password;
     return res.status(ERROR_CODES.CREATED).send(userObject);
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid data" });
-    }
-    if (error.code === ERROR_CODES.DUPLICATED_KEY_ERROR) {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "A user with this email already exists." });
-    }
+    console.log("Error on createUser:", error);
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
-      .send({ message: "Error from createUser" });
+      .send({ message: "Internal server error" });
   }
 };
 
@@ -70,6 +61,7 @@ const login = async (req, res) => {
 
     return res.status(ERROR_CODES.OK).json({ token });
   } catch (error) {
+    console.log("Error on login:", error);
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .json({ message: "Internal server error" });
@@ -88,17 +80,12 @@ const getCurrentUser = async (req, res) => {
 
     return res.status(ERROR_CODES.OK).send({ data: user });
   } catch (error) {
-    if (error.name === "CastError") {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: "Invalid id" });
-    }
+    console.log("Error on getCurrentUser:", error);
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
   }
 };
-
 const updateProfile = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
@@ -130,11 +117,7 @@ const updateProfile = async (req, res) => {
 
     return res.send({ data: user });
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res
-        .status(ERROR_CODES.BAD_REQUEST)
-        .send({ message: error.message });
-    }
+    console.log("Error on updateProfile:", error);
     return res
       .status(ERROR_CODES.INTERNAL_SERVER_ERROR)
       .send({ message: "Internal server error" });
