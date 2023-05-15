@@ -1,18 +1,20 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/users");
-const { HTTP_ERRORS } = require("../utils/httpErrors");
 const { JWT_SECRET } = require("../utils/config");
 
-const createUser = async (req, res) => {
+const BadRequestError = require("../errorConstructors/badRequestError");
+const UnauthorizedError = require("../errorConstructors/unauthorizedError");
+const NotFoundError = require("../errorConstructors/notFoundError");
+const ConflictError = require("../errorConstructors/conflictError");
+
+const createUser = async (req, res, next) => {
   const { name, email, password, avatar } = req.body;
 
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(HTTP_ERRORS.ALREADY_EXIST)
-        .send({ message: "A user with this email already exists." });
+      throw new ConflictError("A user with this email already exists.");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,68 +28,53 @@ const createUser = async (req, res) => {
 
     const userObject = user.toObject();
     delete userObject.password;
-    return res.status(HTTP_ERRORS.CREATED).send(userObject);
+    res.status(201).send(userObject);
   } catch (error) {
-    console.log("Error on createUser:", error);
-    return res
-      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
-      .send({ message: "Internal server error" });
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      return res
-        .status(HTTP_ERRORS.UNAUTHORIZED)
-        .json({ message: "User not found" });
+      throw new UnauthorizedError("User not found");
     }
 
     const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {
-      return res
-        .status(HTTP_ERRORS.UNAUTHORIZED)
-        .json({ message: "Invalid credentials" });
+      throw new UnauthorizedError("Invalid credentials");
     }
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
       expiresIn: "7 days",
     });
 
-    return res.status(HTTP_ERRORS.OK).json({ token });
+    res.status(200).json({ token });
   } catch (error) {
-    console.log("Error on login:", error);
-    return res
-      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
-      .json({ message: "Internal server error" });
+    next(error);
   }
 };
 
-const getCurrentUser = async (req, res) => {
+const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.userId);
 
     if (!user) {
-      return res
-        .status(HTTP_ERRORS.NOT_FOUND)
-        .send({ message: "User not found" });
+      throw new NotFoundError("User not found");
     }
 
-    return res.status(HTTP_ERRORS.OK).send({ data: user });
+    res.status(200).send({ data: user });
   } catch (error) {
-    console.log("Error on getCurrentUser:", error);
-    return res
-      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
-      .send({ message: "Internal server error" });
+    next(error);
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res, next) => {
   try {
     const updates = Object.keys(req.body);
     const allowedUpdates = ["name", "avatar"];
@@ -96,18 +83,14 @@ const updateProfile = async (req, res) => {
     });
 
     if (!isValidOperation) {
-      return res
-        .status(HTTP_ERRORS.BAD_REQUEST)
-        .send({ message: "Invalid updates!" });
+      throw new BadRequestError("Invalid updates!");
     }
 
     const { userId } = req.user;
 
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(HTTP_ERRORS.NOT_FOUND)
-        .send({ message: "User not found" });
+      throw new NotFoundError("User not found");
     }
 
     updates.forEach((update) => {
@@ -116,12 +99,9 @@ const updateProfile = async (req, res) => {
 
     await user.save({ validateBeforeSave: true });
 
-    return res.send({ data: user });
+    res.send({ data: user });
   } catch (error) {
-    console.log("Error on updateProfile:", error);
-    return res
-      .status(HTTP_ERRORS.INTERNAL_SERVER_ERROR)
-      .send({ message: "Internal server error" });
+    next(error);
   }
 };
 
