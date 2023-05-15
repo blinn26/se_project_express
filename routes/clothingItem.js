@@ -6,13 +6,14 @@ const {
   likeItem,
   dislikeItem,
 } = require("../controllers/clothingItem");
+const { validateId, validateCardBody } = require("../middlewares/validation");
 
 const auth = require("../middlewares/auth");
 
 // CRUD METHODS
 
 // CREATE
-router.post("/", auth, createItem);
+router.post("/", auth, validateCardBody, createItem);
 
 // READ
 router.get("/", auth, getItems);
