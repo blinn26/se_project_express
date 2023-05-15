@@ -6,9 +6,9 @@ const {
   likeItem,
   dislikeItem,
 } = require("../controllers/clothingItem");
-const { validateId, validateCardBody } = require("../middlewares/validation");
 
 const auth = require("../middlewares/auth");
+const { validateId, validateCardBody } = require("../middlewares/validation");
 
 // CRUD METHODS
 
@@ -19,7 +19,7 @@ router.post("/", auth, validateCardBody, createItem);
 router.get("/", auth, getItems);
 
 // DELETE
-router.delete("/:itemId", auth, deleteItem);
+router.delete("/:itemId", auth, validateId, deleteItem);
 
 // LIKE
 router.put("/:itemId/likes", auth, likeItem);
