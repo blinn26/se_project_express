@@ -16,6 +16,7 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:3000",
     "https://api.wtwr.crabdance.com",
+    "https://wtwr.crabdance.com",
   ];
   const { origin } = req.headers;
   if (allowedOrigins.includes(origin)) {
@@ -54,6 +55,12 @@ app.use(requestLogger);
 app.use(errorLogger);
 
 app.use(errorHandler);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(err.statusCode || 500).json({ error: err.message });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
