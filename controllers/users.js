@@ -72,7 +72,7 @@ const getCurrentUser = (req, res, next) => {
   User.findById(req.user.userId)
 
     .then((user) => {
-      console.log(req.user);
+      console.log(req.user.userId);
       if (!user) {
         return next(new NotFoundError("User not found"));
       }
