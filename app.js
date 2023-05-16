@@ -36,7 +36,6 @@ mongoose
   .catch(() => {});
 
 app.use((req, res, next) => {
-  console.log(req.url);
   next();
 });
 
@@ -57,8 +56,6 @@ app.use(errorLogger);
 app.use(errorHandler);
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-
   res.status(err.statusCode || 500).json({ error: err.message });
 });
 
