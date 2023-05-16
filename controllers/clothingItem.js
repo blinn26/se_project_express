@@ -2,8 +2,10 @@ const mongoose = require("mongoose");
 
 const { ObjectId } = mongoose.Types;
 const ClothingItem = require("../models/clothingItem");
+const { HTTP_ERRORS } = require("../utils/httpErrors");
 const BadRequestError = require("../errorConstructors/badRequestError");
 const NotFoundError = require("../errorConstructors/notFoundError");
+const ForbiddenError = require("../errorConstructors/forbiddenError");
 
 const createItem = (req, res, next) => {
   const { userId } = req.user;
@@ -19,10 +21,14 @@ const createItem = (req, res, next) => {
   item
     .save()
     .then((savedItem) => {
-      res.status(201).json(savedItem);
+      res.status(HTTP_ERRORS.CREATED).json(savedItem);
     })
     .catch((error) => {
-      next(error);
+      if (error.name === "ValidationError") {
+        next(new BadRequestError("Validation error"));
+      } else {
+        next(error);
+      }
     });
 };
 
@@ -36,7 +42,7 @@ const getItems = (req, res, next) => {
         return { ...item.toObject(), isLiked };
       });
 
-      res.status(200).send({ data: itemsWithIsLiked });
+      res.status(HTTP_ERRORS.OK).send({ data: itemsWithIsLiked });
     })
     .catch((error) => {
       next(error);
@@ -57,19 +63,18 @@ const deleteItem = (req, res, next) => {
   }
 
   ClothingItem.findById(itemId)
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
-      if (!item) {
-        next(new NotFoundError("Item not found"));
-      } else if (!item.owner.equals(userId)) {
-        res
-          .status(403)
-          .json({ message: "You do not have permission to delete this item." });
-      } else {
-        return item.remove();
+      if (!item.owner.equals(userId)) {
+        next(
+          new ForbiddenError("You do not have permission to delete this item.")
+        );
+        return;
       }
+      return item.remove();
     })
     .then(() => {
-      res.status(204).send();
+      res.status(HTTP_ERRORS.OK).send();
     })
     .catch((error) => {
       next(error);
@@ -90,13 +95,12 @@ const likeItem = (req, res, next) => {
     { $addToSet: { likes: userId } },
     { new: true }
   )
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
-      if (!item) {
-        next(new NotFoundError("Item not found"));
-      } else {
-        const isLiked = item.likes.includes(userId);
-        res.status(200).send({ data: { ...item.toObject(), isLiked } });
-      }
+      const isLiked = item.likes.includes(userId);
+      res
+        .status(HTTP_ERRORS.OK)
+        .send({ data: { ...item.toObject(), isLiked } });
     })
     .catch((error) => {
       next(error);
@@ -117,13 +121,12 @@ const dislikeItem = (req, res, next) => {
     { $pull: { likes: userId } },
     { new: true }
   )
+    .orFail(() => new NotFoundError("Item not found"))
     .then((item) => {
-      if (!item) {
-        next(new NotFoundError("Item not found"));
-      } else {
-        const isLiked = item.likes.includes(userId);
-        res.status(200).send({ data: { ...item.toObject(), isLiked } });
-      }
+      const isLiked = item.likes.includes(userId);
+      res
+        .status(HTTP_ERRORS.OK)
+        .send({ data: { ...item.toObject(), isLiked } });
     })
     .catch((error) => {
       next(error);
