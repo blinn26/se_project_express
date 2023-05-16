@@ -50,37 +50,31 @@ const getItems = (req, res, next) => {
 };
 
 const deleteItem = (req, res, next) => {
-  const { userId } = req.user;
   const { itemId } = req.params;
+  const { userId } = req.user;
 
   if (!ObjectId.isValid(itemId)) {
-    next(
-      new BadRequestError(
-        "Invalid path parameter: 'itemId' must be a single String of 12 bytes or a string of 24 hex characters"
-      )
-    );
+    next(new BadRequestError("Invalid item ID"));
     return;
   }
+  // After the OrFail code executed, the app crashes, not sure why?
 
-  ClothingItem.findById(itemId)
-    .orFail(() => new NotFoundError("Item not found"))
+  ClothingItem.findByIdAndDelete(itemId)
+    .orFail(() =>
+      next(new NotFoundError("Clothing Item not found, this ID doesnt exist"))
+    )
     .then((item) => {
-      if (!item.owner.equals(userId)) {
+      if (!item?.owner?.equals(userId)) {
         next(
           new ForbiddenError("You do not have permission to delete this item.")
         );
-        return;
       }
-      return item.remove();
+      next();
     })
-    .then(() => {
-      res.status(HTTP_ERRORS.OK).send();
-    })
-    .catch((error) => {
-      next(error);
+    .catch(() => {
+      next(new NotFoundError("Document Not Found Error"));
     });
 };
-
 const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   const { userId } = req.user;
