@@ -12,20 +12,29 @@ const createUser = (req, res, next) => {
   const { name, email, password, avatar } = req.body;
 
   User.findOne({ email })
-    .orFail(new BadRequestError("A user with this email already exists."))
-    .then(() => bcrypt.hash(password, 10))
-    .then((hashedPassword) =>
-      User.create({
-        name,
-        email,
-        password: hashedPassword,
-        avatar,
-      })
-    )
+    .then((existingUser) => {
+      if (existingUser) {
+        next(new BadRequestError("A user with this email already exists."));
+      } else {
+        return bcrypt.hash(password, 10);
+      }
+    })
+    .then((hashedPassword) => {
+      if (hashedPassword) {
+        return User.create({
+          name,
+          email,
+          password: hashedPassword,
+          avatar,
+        });
+      }
+    })
     .then((user) => {
-      const userObject = user.toObject();
-      delete userObject.password;
-      res.status(HTTP_ERRORS.CREATED).send(userObject);
+      if (user) {
+        const userObject = user.toObject();
+        delete userObject.password;
+        res.status(HTTP_ERRORS.CREATED).send(userObject);
+      }
     })
     .catch((error) => {
       next(error);
@@ -39,14 +48,12 @@ const login = (req, res, next) => {
     .select("+password")
     .then((user) => {
       if (!user) {
-        next(new UnauthorizedError("User not found"));
-        return;
+        return next(new UnauthorizedError("User not found"));
       }
 
-      bcrypt.compare(password, user.password).then((passwordMatches) => {
+      return bcrypt.compare(password, user.password).then((passwordMatches) => {
         if (!passwordMatches) {
-          next(new UnauthorizedError("Invalid credentials"));
-          return;
+          return next(new UnauthorizedError("Invalid credentials"));
         }
 
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
@@ -63,8 +70,10 @@ const login = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user.userId)
-    .orFail(new NotFoundError("User not found"))
     .then((user) => {
+      if (!user) {
+        return next(new NotFoundError("User not found"));
+      }
       res.status(HTTP_ERRORS.OK).send({ data: user });
     })
     .catch((error) => {
@@ -80,15 +89,17 @@ const updateProfile = (req, res, next) => {
   );
 
   if (!isValidOperation) {
-    next(new BadRequestError("Invalid updates!"));
-    return;
+    return next(new BadRequestError("Invalid updates!"));
   }
 
   const { userId } = req.user;
 
   User.findById(userId)
-    .orFail(new NotFoundError("User not found"))
     .then((user) => {
+      if (!user) {
+        return next(new NotFoundError("User not found"));
+      }
+
       const updatedUserProps = { ...user._doc };
       updates.forEach((update) => {
         updatedUserProps[update] = req.body[update];
