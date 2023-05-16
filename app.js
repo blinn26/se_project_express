@@ -55,11 +55,11 @@ app.use(errorLogger);
 
 app.use(errorHandler);
 
-app.use((err, req, res, next) => {
+/* app.use((err, req, res, next) => {
   res.status(err.statusCode || 500).json({ error: err.message });
   next();
 });
-
+ */
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
