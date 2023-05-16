@@ -37,19 +37,25 @@ const login = (req, res, next) => {
 
   User.findOne({ email })
     .select("+password")
-    .orFail(new UnauthorizedError("User not found"))
-    .then((user) =>
+    .then((user) => {
+      if (!user) {
+        next(new UnauthorizedError("User not found"));
+        return;
+      }
+
       bcrypt.compare(password, user.password).then((passwordMatches) => {
         if (!passwordMatches) {
-          throw new UnauthorizedError("Invalid credentials");
+          next(new UnauthorizedError("Invalid credentials"));
+          return;
         }
+
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
           expiresIn: "7 days",
         });
 
         res.status(HTTP_ERRORS.OK).send({ token });
-      })
-    )
+      });
+    })
     .catch((error) => {
       next(error);
     });
