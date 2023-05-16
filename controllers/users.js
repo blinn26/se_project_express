@@ -70,7 +70,9 @@ const login = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user.userId)
+
     .then((user) => {
+      console.log(req.user);
       if (!user) {
         return next(new NotFoundError("User not found"));
       }
