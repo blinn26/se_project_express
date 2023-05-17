@@ -7,6 +7,7 @@ const { HTTP_ERRORS } = require("../utils/httpErrors");
 const BadRequestError = require("../errorConstructors/badRequestError");
 const UnauthorizedError = require("../errorConstructors/unauthorizedError");
 const NotFoundError = require("../errorConstructors/notFoundError");
+const ConflictError = require("../errorConstructors/conflictError");
 
 const createUser = (req, res, next) => {
   const { name, email, password, avatar } = req.body;
@@ -15,9 +16,7 @@ const createUser = (req, res, next) => {
     .then((existingUser) => {
       if (existingUser) {
         next(
-          new BadRequestError(
-            "A user with this email already exists in database"
-          )
+          new ConflictError("A user with this email already exists in database")
         );
       } else {
         return bcrypt.hash(password, 10);

@@ -16,7 +16,7 @@ const { validateId, validateCardBody } = require("../middlewares/validation");
 router.post("/", auth, validateCardBody, createItem);
 
 // READ
-router.get("/", auth, getItems);
+router.get("/", getItems);
 
 // DELETE
 router.delete("/:itemId", auth, validateId, deleteItem);

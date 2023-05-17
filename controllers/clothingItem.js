@@ -61,21 +61,18 @@ const deleteItem = (req, res, next) => {
     .then((item) => {
       if (!item) {
         next(new NotFoundError("Clothing item cannot be found with this ID"));
-        return;
+        return null; // Return null instead of undefined
       }
       if (!item?.owner?.equals(userId)) {
         next(
           new ForbiddenError("You do not have permission to delete this item.")
         );
-        return;
+        return null; // Return null instead of undefined
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })
     .then((deletedItem) => {
-      if (!deletedItem) {
-        next(new NotFoundError("Clothing item cannot be found with this ID"));
-        return;
-      }
+      if (!deletedItem) return; // Do nothing if deletedItem is null
       res
         .status(HTTP_ERRORS.OK)
         .send({ message: "Item Deleted", data: deletedItem });
