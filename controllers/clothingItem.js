@@ -57,7 +57,6 @@ const deleteItem = (req, res, next) => {
     next(new BadRequestError("Invalid item ID"));
     return;
   }
-  // After the OrFail code executed, the app crashes, not sure why?
 
   ClothingItem.findByIdAndDelete(itemId)
     .orFail(() =>
