@@ -93,7 +93,8 @@ const updateProfile = (req, res, next) => {
   );
 
   if (!isValidOperation) {
-    return next(new BadRequestError("Invalid updates!"));
+    next(new BadRequestError("Invalid updates!"));
+    return;
   }
 
   const { userId } = req.user;
@@ -101,7 +102,8 @@ const updateProfile = (req, res, next) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return next(new NotFoundError("User not found"));
+        next(new NotFoundError("User not found"));
+        return;
       }
 
       const updatedUserProps = { ...user._doc };
