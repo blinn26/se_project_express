@@ -14,7 +14,11 @@ const createUser = (req, res, next) => {
   User.findOne({ email })
     .then((existingUser) => {
       if (existingUser) {
-        next(new BadRequestError("A user with this email already exists."));
+        next(
+          new BadRequestError(
+            "A user with this email already exists in database"
+          )
+        );
       } else {
         return bcrypt.hash(password, 10);
       }
@@ -72,7 +76,6 @@ const getCurrentUser = (req, res, next) => {
   User.findById(req.user.userId)
 
     .then((user) => {
-      console.log(req.user.userId);
       if (!user) {
         return next(new NotFoundError("User not found"));
       }

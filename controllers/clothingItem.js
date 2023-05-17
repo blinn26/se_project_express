@@ -12,7 +12,7 @@ const createItem = (req, res, next) => {
   const { name, weather, imageUrl } = req.body;
 
   if (!name || !weather || !imageUrl) {
-    next(new BadRequestError("Missing required fields"));
+    next(new BadRequestError("Missing the required fields"));
     return;
   }
 
@@ -58,22 +58,27 @@ const deleteItem = (req, res, next) => {
     return;
   }
 
-  ClothingItem.findByIdAndDelete(itemId)
-    .orFail(() =>
-      next(new NotFoundError("Clothing Item not found, this ID doesnt exist"))
-    )
+  ClothingItem.findById(itemId)
     .then((item) => {
-      if (!item?.owner?.equals(userId)) {
-        next(
-          new ForbiddenError("You do not have permission to delete this item.")
-        );
+      if (!item) {
+        next(new NotFoundError("Clothing item cannot be found with this ID"));
+        return;
       }
-      next();
+      if (!item?.owner?.equals(userId)) {
+        next(new ForbiddenError("You do not have permission to Delete."));
+        return;
+      }
+      return ClothingItem.findByIdAndDelete(itemId);
     })
-    .catch(() => {
-      next(new NotFoundError("Document Not Found Error"));
+    .then(() => {
+      res.status(HTTP_ERRORS.OK).send({ message: "Item Deleted" });
+    })
+    .catch((error) => {
+      next(error);
+      next(new NotFoundError("Not Found Error"));
     });
 };
+
 const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   const { userId } = req.user;
