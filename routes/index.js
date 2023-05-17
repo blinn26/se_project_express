@@ -13,7 +13,6 @@ router.post("/signup", validateCardBody, createUser);
 router.use("/items", clothingItem);
 router.use("/users", auth, userRouter);
 
-// Handling non-existing routes
 router.use("*", (req, res, next) => {
   next(new NotFoundError("The requested resource was not found"));
 });

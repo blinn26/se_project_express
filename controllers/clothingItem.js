@@ -33,21 +33,17 @@ const createItem = (req, res, next) => {
 };
 
 const getItems = (req, res, next) => {
-  const { userId } = req.user;
-
   ClothingItem.find()
     .then((items) => {
-      const itemsWithIsLiked = items.map((item) => {
-        const isLiked = item.likes.includes(userId);
-        return { ...item.toObject(), isLiked };
-      });
+      const itemsTransformed = items.map((item) => item.toObject());
 
-      res.status(HTTP_ERRORS.OK).send({ data: itemsWithIsLiked });
+      res.status(HTTP_ERRORS.OK).send({ data: itemsTransformed });
     })
     .catch((error) => {
       next(error);
     });
 };
+
 const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   const { userId } = req.user;
