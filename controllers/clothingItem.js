@@ -35,9 +35,7 @@ const createItem = (req, res, next) => {
 const getItems = (req, res, next) => {
   ClothingItem.find()
     .then((items) => {
-      const itemsTransformed = items.map((item) => item.toObject());
-
-      res.status(HTTP_ERRORS.OK).send({ data: itemsTransformed });
+      res.status(HTTP_ERRORS.OK).send({ data: items });
     })
     .catch((error) => {
       next(error);
