@@ -5,7 +5,7 @@ const userRouter = require("./users");
 const { login, createUser } = require("../controllers/users");
 const auth = require("../middlewares/auth");
 const { validateAuth, validateUser } = require("../middlewares/validation");
-const { NotFoundError } = require("../errorConstructors/notFoundError.js");
+const NotFoundError = require("../errorConstructors/notFoundError.js");
 
 router.post("/signin", validateAuth, login);
 router.post("/signup", validateUser, createUser);
