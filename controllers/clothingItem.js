@@ -48,7 +48,6 @@ const getItems = (req, res, next) => {
       next(error);
     });
 };
-
 const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   const { userId } = req.user;
@@ -65,17 +64,24 @@ const deleteItem = (req, res, next) => {
         return;
       }
       if (!item?.owner?.equals(userId)) {
-        next(new ForbiddenError("You do not have permission to Delete."));
+        next(
+          new ForbiddenError("You do not have permission to delete this item.")
+        );
         return;
       }
       return ClothingItem.findByIdAndDelete(itemId);
     })
-    .then(() => {
-      res.status(HTTP_ERRORS.OK).send({ message: "Item Deleted" });
+    .then((deletedItem) => {
+      if (!deletedItem) {
+        next(new NotFoundError("Clothing item cannot be found with this ID"));
+        return;
+      }
+      res
+        .status(HTTP_ERRORS.OK)
+        .send({ message: "Item Deleted", data: deletedItem });
     })
     .catch((error) => {
-      next(error);
-      next(new NotFoundError("Not Found Error"));
+      next(new NotFoundError(`Not Found Error: ${error.message}`));
     });
 };
 
