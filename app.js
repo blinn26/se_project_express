@@ -1,9 +1,11 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+
 const cors = require("cors");
-const router = require("./routes/index");
+const { errors } = require("celebrate");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
+const router = require("./routes/index");
 const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
@@ -32,12 +34,8 @@ app.use((req, res, next) => {
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/wtwr_db")
-  .then(() => {})
-  .catch(() => {});
-
-app.use((req, res, next) => {
-  next();
-});
+  .then(() => console.log("Connected to database"))
+  .catch((error) => console.log("Database connection error:", error));
 
 app.use(express.json());
 
@@ -47,12 +45,11 @@ app.get("/crash-test", () => {
   }, 0);
 });
 
+app.use(requestLogger);
 app.use("/", router);
 
-app.use(requestLogger);
-
 app.use(errorLogger);
-
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {
